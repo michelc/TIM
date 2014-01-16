@@ -149,11 +149,19 @@ end
 # Import : importe les données
 post '/import' do
   # Il doit y avoir des données à importer
-  data = params[:data].to_s.lines
+  data = params[:data].to_s.lines.to_a
   redirect "/" if data.length == 0
 
   # Vidage de la table
   Workday.destroy
+
+  # Réinitialisation de la séquence pour l'identifiant
+  adapter = DataMapper.repository(:default).adapter
+  if settings.development?
+    adapter.execute("DELETE FROM sqlite_sequence WHERE name = 'workdays'")
+  else
+    adapter.execute("SELECT setval('workdays_id_seq', (SELECT MAX(id) FROM workdays))")
+  end
 
   # Importation séquentielle des données
   current_year = 0
@@ -218,13 +226,6 @@ post '/import' do
   unless workday.nil?
     workday = check(workday)
     workday.save
-  end
-
-  # Mise à jour des séquences PostgreSQL si production
-  # if not development?
-  if ENV["DATABASE_URL"]
-    adapter = DataMapper.repository(:default).adapter
-    adapter.execute("SELECT setval('workdays_id_seq', (SELECT MAX(id) FROM workdays))")
   end
 
   redirect "/"
