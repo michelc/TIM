@@ -3,6 +3,7 @@
 require "rubygems"
 require "sinatra"
 require "data_mapper"
+require "erb"
 require_relative "lib/date_fr"
 
 require "sinatra/reloader" if development?
@@ -238,7 +239,7 @@ get '/markdown' do
   @years = get_tree(workdays)
 
   content_type "text/plain"
-  erb :markdown, :layout => false
+  erb :markdown, :layout => false, :content_type => "text/plain"
 end
 
 # Csv : pour copier / coller dans Excel
