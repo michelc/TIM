@@ -1,0 +1,20 @@
+<% if @workday %>
+<%= erb :edit %>
+<% end %>
+
+<% @workdays.each do |workday| %>
+  <h3>
+    <%= day_title(workday) %>
+    <a class="over" href="/edit/<%= workday.id %>">edit</a>
+  </h3>
+  <p>
+    <%= workday.am_start %> / <%= workday.am_end %>
+    et
+    <%= workday.pm_start %> / <%= workday.pm_end %>
+  </p>
+  <ul>
+    <% workday.detail.to_s.split("\n").each do |line| %>
+      <li><%= line %></li>
+    <% end %>
+  </ul>
+<% end %>

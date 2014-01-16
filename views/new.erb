@@ -1,0 +1,33 @@
+<% if @workday.errors.any? %>
+  <ul>
+  <% @workday.errors.each do |error| %><li><%= error %></li><% end %>
+  </li>
+<% end %>
+
+<form action="/" method="post">
+  <fieldset class="form">
+    <p>
+      <label for="date">Journée</label>
+      <input class="short" id="date" name="workday[date]" type="text" value="<%= input_date(@workday.date) %>" />
+      <span class="not_important">(format yyyy-mm-dd)</span>
+    </p>
+    <p>
+      <label for="am_start">Heures</label>
+      <input class="short" id="am_start" name="workday[am_start]" type="text" value="<%= @workday.am_start %>" />
+      /
+      <input class="short" id="am_end" name="workday[am_end]" type="text" value="<%= @workday.am_end %>" />
+      et
+      <input class="short" id="pm_start" name="workday[pm_start]" type="text" value="<%= @workday.pm_start %>" />
+      /
+      <input class="short" id="pm_end" name="workday[pm_end]" type="text" value="<%= @workday.pm_end %>" />
+    </p>
+    <p>
+      <label for="detail">Détail</label>
+      <textarea id="detail" name="workday[detail]" cols="20" rows="2"><%= @workday.detail %></textarea>
+    </p>
+    <p class="submit">
+      <input type="submit" value="Ajouter" />
+      <a href="/">Annuler</a>
+    </p>
+  </fieldset>
+</form>
