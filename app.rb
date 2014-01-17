@@ -137,9 +137,8 @@ end
 
 # Export : exporte les données
 get '/export' do
-  @data = build_markdown
-
-  erb :export
+  content_type "text/plain"
+  build_markdown
 end
 
 # Import : formulaire pour importer les données
@@ -159,8 +158,10 @@ post '/import' do
   # Réinitialisation de la séquence pour l'identifiant
   adapter = DataMapper.repository(:default).adapter
   if settings.development?
+    # SQLite
     adapter.execute("DELETE FROM sqlite_sequence WHERE name = 'workdays'")
   else
+    # PostgreSQL
     adapter.execute("SELECT setval('workdays_id_seq', (SELECT MAX(id) FROM workdays))")
   end
 
@@ -233,12 +234,6 @@ post '/import' do
 end
 
 
-# Markdown : alternative à l'export
-get '/markdown' do
-  content_type "text/plain"
-  build_markdown
-end
-
 # Csv : pour copier / coller dans Excel
 get '/csv' do
   workdays = Workday.all(:limit => 30, :order => [:date.asc])
@@ -248,9 +243,9 @@ get '/csv' do
     week = w.date.strftime("%V").to_i
     if current_week != week
       current_week = week
-      end_of_week = w.date + 5 - w.date.wday
+      friday = w.date + 5 - w.date.wday
       csv << "Semaine du #{w.date.mday.to_s} au "
-      csv << "#{end_of_week.mday.to_s} #{end_of_week.strftime('%B')}\n"
+      csv << "#{friday.mday.to_s} #{friday.strftime('%B')}\n"
     end
     csv << "#{fh_hour(w.am_start)}\t"
     csv << "#{fh_hour(w.am_end)}\t"
@@ -275,44 +270,27 @@ def build_markdown
   markdown = ""
 
   workdays = Workday.all(:order => [:date.asc])
-  workdays.each do |workday|
-    year = workday.date.year
+  workdays.each do |w|
+    year = w.date.year
     if current_year != year
       current_year = year
       markdown << "# Année #{year}\n"
       markdown << "\n"
     end
-    week = workday.date.strftime("%V").to_i
+    week = w.date.strftime("%V").to_i
     if current_week != week
       current_week = week
+      friday = w.date + 5 - w.date.wday
       markdown << "\n"
-      markdown << "## Semaine du "
-      markdown << workday.date.mday.to_s
-      markdown << " au "
-      end_of_week = workday.date + 5 - workday.date.wday
-      markdown << end_of_week.mday.to_s
-      markdown << end_of_week.strftime(" %B")
-      markdown << "\n"
+      markdown << "## Semaine du #{w.date.mday} au #{friday.mday}"
+      markdown << " #{friday.strftime('%B')}\n"
       markdown << "\n"
     end
-    markdown << "### "
-    markdown << workday.date.strftime("%A %d")
-    markdown << " (#{get_hours(workday.hours)})"
+    markdown << "### #{w.date.strftime('%A %d')} (#{get_hours(w.hours)})\n"
     markdown << "\n"
-    markdown << "\n"
-    markdown << "* "
-    markdown << workday.am_start
-    markdown << " / "
-    markdown << workday.am_end
-    markdown << " et "
-    markdown << workday.pm_start
-    markdown << " / "
-    markdown << workday.pm_end
-    markdown << "\n"
-    workday.detail.to_s.split("\n").each do |line|
-      markdown << "* "
-      markdown << line.chomp
-      markdown << "\n"
+    markdown << "* #{w.am_start} / #{w.am_end} et #{w.pm_start} / #{w.pm_end}\n"
+    w.detail.to_s.split("\n").each do |line|
+      markdown << "* #{line.chomp}\n"
     end
     markdown << "\n"
   end
@@ -396,45 +374,4 @@ def sum_duration(detail)
   end
 
   duration
-end
-
-def get_tree (workdays)
-  current_year = 0
-  current_week = 0
-
-  years = []
-  weeks = []
-  days = []
-
-  workdays.each do |workday|
-    year = workday.date.year
-    if current_year != year
-      current_year = year
-      weeks = []
-      years << { :year => year, :weeks => weeks }
-    end
-    week = workday.date.strftime("%V").to_i
-    if current_week != week
-      current_week = week
-      end_of_week = workday.date + 5 - workday.date.wday
-      days = []
-      weeks << {
-                :from => workday.date.mday.to_s,
-                :to => end_of_week.mday.to_s,
-                :month => end_of_week.strftime("%B"),
-                :days => days
-               }
-    end
-    hours = "#{workday.am_start} / #{workday.am_end}
-          et #{workday.pm_start} / #{workday.pm_end}".gsub(/\s+/, " ")
-    days << {
-              :title => workday.date.strftime("%A %d"),
-              :hours => get_hours(workday.hours),
-              :lines => workday.detail.to_s
-                        .split("\n")
-                        .unshift(hours)
-            }
-  end
-
-  years
 end

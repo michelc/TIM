@@ -1,9 +1,0 @@
-<% @years.each do |year| %><%= "# Année #{year[:year]}" %>
-<% year[:weeks].each do |week| %>
-
-<%= "## Semaine du #{week[:from]} au #{week[:to]} #{week[:month]}" %>
-<% week[:days].each do |day| %>
-<%= "### #{day[:title]} (#{day[:hours]})" %>
-<% day[:lines].each do |line| %>
-<%= "* #{line}" %><% end %>
-<% end %><% end %><% end %>
