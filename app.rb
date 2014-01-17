@@ -235,11 +235,8 @@ end
 
 # Markdown : alternative à l'export
 get '/markdown' do
-  workdays = Workday.all(:order => [:date.asc])
-  @years = get_tree(workdays)
-
   content_type "text/plain"
-  erb :markdown, :layout => false, :content_type => "text/plain"
+  build_markdown
 end
 
 # Csv : pour copier / coller dans Excel
