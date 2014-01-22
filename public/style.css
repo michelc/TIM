@@ -311,11 +311,6 @@ textarea:focus
   padding-left: 110px;
 }
 
-.submit a
-{
-    xmargin-left: 10px;
-}
-
 input[type="button"],
 input[type="submit"]
 {
@@ -324,7 +319,6 @@ input[type="submit"]
   color: #fff !important;
   cursor: pointer;
   margin: 0 20px 0 0 !important;
-  padding: 5px 20px !important;
   padding: 4px 10px !important;
 }
 
@@ -399,13 +393,7 @@ h3:hover a.over
   visibility: visible;
 }
 
-
-
-
-
 .not_important
 {
   color: #999;
 }
-
-
