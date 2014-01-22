@@ -31,8 +31,17 @@
       <textarea id="detail" name="workday[detail]" cols="20" rows="2"><%= @workday.detail %></textarea>
     </p>
     <p class="submit">
-      <input type="submit" value="Modifier" />
+      <input id="submit" type="submit" value="Modifier" disabled />
       <a href="/">Annuler</a>
     </p>
   </fieldset>
 </form>
+
+<script>
+/* Active le bouton [Modifier] dès que le contenu est modifié */
+var submit = document.getElementById("submit");
+var inputs = document.querySelectorAll("input.short, textarea");
+[].forEach.call(inputs, function (input) {
+  input.addEventListener("input", function(e) { submit.disabled = false; })
+});
+</script>
