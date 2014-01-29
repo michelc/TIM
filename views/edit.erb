@@ -38,10 +38,26 @@
 </form>
 
 <script>
+
 /* Active le bouton [Modifier] dès que le contenu est modifié */
-var submit = document.getElementById("submit");
-var inputs = document.querySelectorAll("input.short, textarea");
+var submit = document.getElementById("submit"),
+    inputs = document.querySelectorAll("input.short, textarea");
 [].forEach.call(inputs, function (input) {
   input.addEventListener("input", function(e) { submit.disabled = false; })
 });
+
+/* Fait confirmer la sortie de page s'il y a du contenu modifié */
+window.onbeforeunload = function (e) {
+  // Si le bouton [Modifier] est désactivé (ie le contenu n'a pas été modifié)
+  var submit = document.getElementById("submit");
+  // Alors il n'est pas nécessaire de faire confirmer la sortie de page
+  if (submit.disabled) exit;
+  // Défini un message pour que le navigateur affiche une fenêtre de confirmation
+  var e = e || window.event,
+      message = "Les informations en cours de saisie n'ont pas été enregistrées. ";
+  message += "Elles seront perdues si vous quittez ou rechargez la page en cours.";
+  if (e) e.returnValue = message;
+  return message;
+};
+
 </script>
