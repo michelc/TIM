@@ -141,6 +141,7 @@ get '/export' do
   build_markdown
 end
 
+
 # Import : formulaire pour importer les données
 get '/import' do
   erb :import
@@ -181,6 +182,7 @@ post '/import' do
       unless workday.nil?
         workday = check(workday)
         workday.save
+        workday = nil
       end
       parts = line.split(" ")
       month_name = parts.last
@@ -195,6 +197,7 @@ post '/import' do
       unless workday.nil?
         workday = check(workday)
         workday.save
+        workday = nil
       end
       current_day = line.split(" ")[2].to_i
       # Cas particulier
@@ -261,6 +264,7 @@ get '/csv' do
   # headers["Content-Disposition"] = "inline"
   csv
 end
+
 
 # ----- Fonctions utilitaires
 
