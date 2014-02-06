@@ -69,6 +69,12 @@ helpers do
     "%dh%02d" % [ h, m ]
   end
 
+  def get_days(minutes_as_int)
+    d = minutes_as_int / 450.0
+
+    (d*4).round / 4.0
+  end
+
 end
 
 
@@ -263,6 +269,33 @@ get '/csv' do
   # "Content-Disposition: attachment;""
   # headers["Content-Disposition"] = "inline"
   csv
+end
+
+
+# Tags : affiche les tags récemment utilisés
+get '/tags' do
+  @tags = Hash.new(0)
+  total = 0
+  workdays = Workday.all(:limit => 60, :order => [:date.asc])
+  workdays.each do |w|
+    w.detail.to_s.split("\n").each do |line|
+      infos = line.match(/(\(.*\))/).to_s
+      unless infos.empty?
+        nb_hours = check_hour(infos)
+        unless nb_hours.empty?
+          tag = infos.match( /\s+(.+)\)/ ).to_s.chop.strip.downcase
+          min = get_minutes(nb_hours)
+          @tags[tag] += min
+          total += min
+        end
+      end
+    end
+  end
+
+  @tags = Hash[@tags.sort_by { |tag, min| tag }]
+  @tags["Total"] = total
+
+  erb :tags
 end
 
 

@@ -1,0 +1,5 @@
+<h3>Tags</h3>
+
+<ul><% @tags.each do |tag, minutes| %>
+<%= "<li>#{tag} : #{get_days(minutes)}</li>" %>
+<% end %></ul>
