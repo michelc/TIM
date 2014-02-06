@@ -281,10 +281,20 @@ textarea
   width: 660px;
 }
 
+/* Textarea pour import depuis Markdown */
 textarea.wide
 {
   height: 75ex;
   width: 820px;
+}
+
+/* Textarea pour copier / coller vers Excel */
+textarea.excel
+{
+  font-size: 90%;
+  height: 6em;
+  overflow: hidden;
+  width: 300px;
 }
 
 select
@@ -297,7 +307,8 @@ input[type="number"]:focus,
 input[type="text"]:focus,
 input[type="password"]:focus,
 select:focus,
-textarea:focus
+textarea:focus,
+textarea.excel:hover
 {
   outline-style: solid;
   outline-width: 2px;

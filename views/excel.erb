@@ -1,0 +1,29 @@
+<% @weeks.each do |week| %><h3><%= week[:title] %></h3>
+
+<textarea class="excel"><% week[:days].each do |day| %><%= day.join("\t")%>
+<% end %></textarea>
+
+<% end %>
+
+<script>
+
+/* Mémorise quel est le textarea qui est survolé par la souris */
+var current,
+    texts = document.querySelectorAll("textarea.excel");
+[].forEach.call(texts, function (input) {
+  input.addEventListener("mouseenter", function(e) { current = this; });
+  input.addEventListener("mouseleave", function(e) { this.blur(); current = null; });
+});
+
+/* Sélectionne le contenu du textarea en cours quand appui sur Ctrl */
+document.addEventListener("keydown", function (e) {
+  // Lorsque la touche Contrôle ou Command est pressée
+  if (!(e.ctrlKey || e.metaKey)) return;
+  // Et qu'un des textarea est survolé
+  if (!current) return;
+  // => On pré-sélectionne le contenu du textarea
+  // (pour faciliter sa copie par Contrôle+C)
+  current.select();
+});
+
+</script>

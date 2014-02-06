@@ -243,8 +243,10 @@ post '/import' do
 end
 
 
-# Csv : pour copier / coller dans Excel
-get '/csv' do
+# Excel : pour copier / coller dans Excel
+get '/excel' do
+  @weeks = []
+  days = []
   workdays = Workday.all(:limit => 30, :order => [:date.asc])
   current_week = 0
   csv = "<textarea style='width:100%; height:100%'>"
@@ -253,22 +255,16 @@ get '/csv' do
     if current_week != week
       current_week = week
       friday = w.date + 5 - w.date.wday
-      csv << "Semaine du #{w.date.mday.to_s} au "
-      csv << "#{friday.mday.to_s} #{friday.strftime('%B')}\n"
+      days = []
+      @weeks << {
+        :title => "Semaine du #{w.date.mday.to_s} au #{friday.mday.to_s} #{friday.strftime('%B')}",
+        :days => days
+      }
     end
-    csv << "#{fh_hour(w.am_start)}\t"
-    csv << "#{fh_hour(w.am_end)}\t"
-    csv << "#{fh_hour(w.pm_start)}\t"
-    csv << "#{fh_hour(w.pm_end)}\n"
+    days << [ xls_hour(w.am_start), xls_hour(w.am_end), xls_hour(w.pm_start), xls_hour(w.pm_end) ]
   end
-  csv << "</textarea>"
 
-  puts csv
-
-  # content_type "text/csv"
-  # "Content-Disposition: attachment;""
-  # headers["Content-Disposition"] = "inline"
-  csv
+  erb :excel
 end
 
 
@@ -373,7 +369,7 @@ def check_hour(text)
   hour
 end
 
-def fh_hour(hour)
+def xls_hour(hour)
   minutes = get_minutes(hour)
   h = minutes / 60
   m = minutes - (h * 60)
