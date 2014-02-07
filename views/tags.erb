@@ -1,4 +1,15 @@
-<h3>Tags</h3>
+<form action="/tags" method="post">
+  <fieldset class="form">
+    <h3>
+      Consultation période du
+      <input class="short" id="from" name="from" type="text" value="<%= @from %>" />
+      au
+      <input class="short" id="to" name="to" type="text" value="<%= @to %>" />
+      &nbsp;
+      <input type="submit" value="Ok" />
+    </h3>
+  </fieldset>
+</form>
 
 <ul><% @tags.each do |tag, minutes| %>
 <%= "<li>#{tag} : #{get_days(minutes)}</li>" %>

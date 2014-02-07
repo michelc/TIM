@@ -4,6 +4,7 @@ require "rubygems"
 require "sinatra"
 require "data_mapper"
 require "erb"
+require "sinatra/flash"
 require_relative "lib/date_fr"
 
 require "sinatra/reloader" if development?
@@ -15,8 +16,11 @@ configure do
   # Protection contre les attaques web connues
   # (mais autorise les IFRAME pour Responsinator par exemple)
   set :protection, :except => :frame_options
-end
 
+  # Activation des sessions
+  # (nécessaire pour utiliser sinatra-flash)
+  enable :sessions
+end
 
 # ----- Configuration de DataMapper
 
@@ -268,11 +272,14 @@ get '/excel' do
 end
 
 
-# Tags : affiche les tags récemment utilisés
+# Tags : affiche les temps groupés par tags
 get '/tags' do
+  @from = flash[:from] || (Date.today << 1) + 1
+  @to = flash[:to] || Date.today
+
   @tags = Hash.new(0)
   total = 0
-  workdays = Workday.all(:limit => 60, :order => [:date.asc])
+  workdays = Workday.all(:date => @from..@to, :order => [:date.asc])
   workdays.each do |w|
     w.detail.to_s.split("\n").each do |line|
       infos = line.match(/(\(.*\))/).to_s
@@ -292,6 +299,14 @@ get '/tags' do
   @tags["Total"] = total
 
   erb :tags
+end
+
+# Tags : défini la période pour grouper les temps par tag
+post '/tags' do
+  flash[:from] = params[:from]
+  flash[:to] = params[:to]
+
+  redirect "/tags"
 end
 
 
