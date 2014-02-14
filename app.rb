@@ -279,6 +279,7 @@ get '/tags' do
 
   @tags = Hash.new(0)
   total = 0
+
   workdays = Workday.all(:date => @from..@to, :order => [:date.asc])
   workdays.each do |w|
     w.detail.to_s.split("\n").each do |line|
@@ -298,7 +299,9 @@ get '/tags' do
   @tags = Hash[@tags.sort_by { |tag, min| tag }]
   @tags["Total"] = total
 
-  erb :tags
+  flash[:from] = @from
+  flash[:to] = @to
+  erb :tags_list
 end
 
 # Tags : défini la période pour grouper les temps par tag
@@ -308,6 +311,40 @@ post '/tags' do
 
   redirect "/tags"
 end
+
+# Tags.Details
+get "/tags/:tag" do
+  @from = flash[:from] || (Date.today << 1) + 1
+  @to = flash[:to] || Date.today
+
+  @tag = params[:tag]
+  @lines = []
+  total = 0
+
+  workdays = Workday.all(:date => @from..@to, :order => [:date.asc])
+  workdays.each do |w|
+    w.detail.to_s.split("\n").each do |line|
+      infos = line.match(/(\(.*\))/).to_s
+      unless infos.empty?
+        nb_hours = check_hour(infos)
+        unless nb_hours.empty?
+          tag = infos.match( /\s+(.+)\)/ ).to_s.chop.strip.downcase
+          if tag == @tag
+            @lines << "#{w.date.strftime('%d/%m')} : #{line}"
+            min = get_minutes(nb_hours)
+            total += min
+          end
+        end
+      end
+    end
+  end
+  @tag += " : " + get_days(total).to_s
+
+  flash[:from] = @from
+  flash[:to] = @to
+  erb :tags_show
+end
+
 
 
 # ----- Fonctions utilitaires

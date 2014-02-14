@@ -12,5 +12,5 @@
 </form>
 
 <ul><% @tags.each do |tag, minutes| %>
-<%= "<li>#{tag} : #{get_days(minutes)}</li>" %>
+<%= "<li><a href=""/tags/#{tag}"">#{tag}</a> : #{get_days(minutes)}</li>" %>
 <% end %></ul>
