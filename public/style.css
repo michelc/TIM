@@ -167,26 +167,7 @@ h4
 
 
 /* --------------------------------------------------
-*  Header : title and links
--------------------------------------------------- */
-
-#header
-{
-  display: block;
-}
-
-
-#header h1
-{
-  xfont-family: Verdana, Helvetica, Sans-Serif;
-  font-size: 250%;
-  margin: 14px 0;
-  text-align: center;
-}
-
-
-/* --------------------------------------------------
-*  Barre de navigation
+*  Barre de menu et de navigation
 -------------------------------------------------- */
 
 ul#nav
@@ -196,6 +177,7 @@ ul#nav
   list-style: none;
   margin: 0;
   padding: 0;
+  border-top: 30px solid white;
 }
 
 ul#nav li
