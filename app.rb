@@ -70,7 +70,8 @@ helpers do
     h = minutes_as_int / 60
     m = minutes_as_int - (h * 60)
 
-    "%dh%02d" % [ h, m ]
+    hh_mm = "%dh%02d" % [ h, m ]
+    hh_mm.sub("h00", "h")
   end
 
   def get_days(minutes_as_int)
@@ -207,7 +208,6 @@ post '/import' do
       unless workday.nil?
         workday = check(workday)
         workday.save
-        workday = nil
       end
       current_day = line.split(" ")[2].to_i
       # Cas particulier
@@ -231,6 +231,7 @@ post '/import' do
         workday.am_end = hours[1]
         workday.pm_start = hours[2]
         workday.pm_end = hours[3]
+        workday.pm_end = hours[3].split(" ")[0] if hours[3].include? " "
       else
         # * Un commentaire (HHhMM un_tag)
         # => permet de récupérer le travail du jour
@@ -262,10 +263,12 @@ get '/excel' do
       days = []
       @weeks << {
         :title => "Semaine du #{monday.mday.to_s} au #{w.date.mday.to_s} #{w.date.strftime('%B')}",
-        :days => days
+        :days => days,
+        :hours => 0
       }
     end
     days.unshift [ xls_hour(w.am_start), xls_hour(w.am_end), xls_hour(w.pm_start), xls_hour(w.pm_end) ]
+    @weeks.last[:hours] += w.hours
   end
 
   erb :excel
@@ -367,8 +370,9 @@ def build_markdown
       current_week = week
       friday = w.date + 5 - w.date.wday
       markdown << "\n"
-      markdown << "## Semaine du #{w.date.mday} au #{friday.mday}"
-      markdown << " #{friday.strftime('%B')}\n"
+      markdown << "## Semaine du #{w.date.mday}"
+      markdown << " #{w.date.strftime('%B')}" unless (w.date.month == friday.month)
+      markdown << " au #{friday.mday} #{friday.strftime('%B')}\n"
       markdown << "\n"
     end
     markdown << "### #{w.date.strftime('%A %d')} (#{get_hours(w.hours)})\n"

@@ -1,4 +1,4 @@
-<% @weeks.each do |week| %><h3><%= week[:title] %></h3>
+<% @weeks.each do |week| %><h3><%= week[:title] %> : <%= get_hours(week[:hours]) %></h3>
 
 <textarea class="excel"><% week[:days].each do |day| %><%= day.join("\t")%>
 <% end %></textarea>
