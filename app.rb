@@ -333,7 +333,7 @@ get "/tags/:tag" do
         unless nb_hours.empty?
           tag = infos.match( /\s+(.+)\)/ ).to_s.chop.strip.downcase
           if tag == @tag
-            @lines << "#{w.date.strftime('%d/%m')} : #{line}"
+            @lines << "<a href='/edit/#{w.id}'>#{w.date.strftime('%d/%m')}</a> : #{line}"
             min = get_minutes(nb_hours)
             total += min
           end
