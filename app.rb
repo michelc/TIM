@@ -251,21 +251,21 @@ end
 get '/excel' do
   @weeks = []
   days = []
-  workdays = Workday.all(:limit => 30, :order => [:date.asc])
+  workdays = Workday.all(:limit => 30, :order => [:date.desc])
   current_week = 0
   csv = "<textarea style='width:100%; height:100%'>"
   workdays.each do |w|
     week = w.date.strftime("%V").to_i
     if current_week != week
       current_week = week
-      friday = w.date + 5 - w.date.wday
+      monday = w.date + 1 - w.date.wday
       days = []
       @weeks << {
-        :title => "Semaine du #{w.date.mday.to_s} au #{friday.mday.to_s} #{friday.strftime('%B')}",
+        :title => "Semaine du #{monday.mday.to_s} au #{w.date.mday.to_s} #{w.date.strftime('%B')}",
         :days => days
       }
     end
-    days << [ xls_hour(w.am_start), xls_hour(w.am_end), xls_hour(w.pm_start), xls_hour(w.pm_end) ]
+    days.unshift [ xls_hour(w.am_start), xls_hour(w.am_end), xls_hour(w.pm_start), xls_hour(w.pm_end) ]
   end
 
   erb :excel
