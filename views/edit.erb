@@ -67,4 +67,17 @@ document.forms[0].addEventListener("submit", function(e) {
   window.removeEventListener("beforeunload", alerte);
 });
 
+/* Détourne Ctrl+S pour enregistrer la saisie en cours */
+/* http://stackoverflow.com/questions/4446987/overriding-controls-save-functionality-in-browser */
+document.addEventListener("keydown", function(e) {
+  if (e.keyCode == 83 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+    // Désactive le comportement par défaut
+    e.preventDefault();
+    // Si le bouton [Modifier] est activé (ie le contenu a bien été modifié)
+    var submit = document.getElementById("submit");
+    // Alors il est possible de sauvegarder
+    if (!submit.disabled) submit.click();
+  }
+}, false);
+
 </script>
