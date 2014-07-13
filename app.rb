@@ -4,7 +4,6 @@ require "rubygems"
 require "sinatra"
 require "data_mapper"
 require "erb"
-require "sinatra/flash"
 require_relative "lib/date_fr"
 
 require "sinatra/reloader" if development?
@@ -18,7 +17,7 @@ configure do
   set :protection, :except => :frame_options
 
   # Activation des sessions
-  # (nécessaire pour utiliser sinatra-flash)
+  # (nécessaire pour conserver les périodes de consultation des tags)
   enable :sessions
 end
 
@@ -277,8 +276,8 @@ end
 
 # Tags : affiche les temps groupés par tags
 get '/tags' do
-  @from = flash[:from] || (Date.today << 1) + 1
-  @to = flash[:to] || Date.today
+  @from = session[:from] || (Date.today << 1) + 1
+  @to = session[:to] || Date.today
 
   @tags = Hash.new(0)
   total = 0
@@ -302,23 +301,21 @@ get '/tags' do
   @tags = Hash[@tags.sort_by { |tag, min| tag }]
   @tags["Total"] = total
 
-  flash[:from] = @from
-  flash[:to] = @to
   erb :tags_list
 end
 
 # Tags : défini la période pour grouper les temps par tag
 post '/tags' do
-  flash[:from] = params[:from]
-  flash[:to] = params[:to]
+  session[:from] = params[:from]
+  session[:to] = params[:to]
 
   redirect "/tags"
 end
 
 # Tags.Details
 get "/tags/:tag" do
-  @from = flash[:from] || (Date.today << 1) + 1
-  @to = flash[:to] || Date.today
+  @from = session[:from] || (Date.today << 1) + 1
+  @to = session[:to] || Date.today
 
   @tag = params[:tag]
   @lines = []
@@ -343,8 +340,6 @@ get "/tags/:tag" do
   end
   @tag += " : " + get_days(total).to_s
 
-  flash[:from] = @from
-  flash[:to] = @to
   erb :tags_show
 end
 
