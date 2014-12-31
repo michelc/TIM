@@ -197,10 +197,13 @@ post '/import' do
       parts = line.split(" ")
       month_name = parts.last
       current_month = Date::MONTHNAMES.index(month_name)
-      # Cas particulier
-      # ## Semaine du 31 au 4 Avril
+      # Cas particuliers
+      # ## Semaine du 31 Mars au 4 Avril
       # => il faut utiliser le mois précédant
       current_month -= 1 if parts[3].to_i > parts[5].to_i
+      # ## Semaine du 29 Décembre au 2 Janvier
+      # => le mois précédant janvier est décembre
+      current_month = 12 if current_month == 0
     elsif line.start_with? "### "
       # ### NomJour 99 (HHhMM)
       # => permet de récupérer le jour du mois
