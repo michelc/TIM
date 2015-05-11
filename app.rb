@@ -1,12 +1,23 @@
 # encoding: UTF-8
 
-require "rubygems"
 require "sinatra"
 require "data_mapper"
 require "erb"
 require_relative "lib/date_fr"
 
 require "sinatra/reloader" if development?
+
+
+# ----- Calcul écart heures travaillées / obligatoires
+#
+# SELECT Nb_Heures / 60 AS Heures
+#      , Nb_Heures - ((Nb_Heures / 60) * 60) AS Minutes
+# FROM   (SELECT 497              -- écart de 8h17 au 1/1/14
+#              + SUM(hours)       -- nb heures travaillées
+#              - (COUNT(*) * 444) -- nb jours * 7h24
+#              AS Nb_Heures
+#         FROM   workdays
+#         WHERE  date <= '2015-01-01')
 
 
 # ----- Configuration de Sinatra
@@ -113,7 +124,6 @@ post "/" do
   @workday = check(@workday)
   # Enregistre la journée
   if @workday.save
-    save_as_markdown
     status 201
     redirect "/"
   else
@@ -135,7 +145,6 @@ put "/:id" do
   @workday.attributes = params[:workday]
   @workday = check(@workday)
   if @workday.save
-    save_as_markdown
     status 201
     redirect "/"
   else
@@ -250,33 +259,6 @@ post '/import' do
 end
 
 
-# Excel : pour copier / coller dans Excel
-get '/excel' do
-  @weeks = []
-  days = []
-  workdays = Workday.all(:limit => 30, :order => [:date.desc])
-  current_week = 0
-  csv = "<textarea style='width:100%; height:100%'>"
-  workdays.each do |w|
-    week = w.date.strftime("%V").to_i
-    if current_week != week
-      current_week = week
-      monday = w.date + 1 - w.date.wday
-      days = []
-      @weeks << {
-        :title => "Semaine du #{monday.mday.to_s} au #{w.date.mday.to_s} #{w.date.strftime('%B')}",
-        :days => days,
-        :hours => 0
-      }
-    end
-    days.unshift [ xls_hour(w.am_start), xls_hour(w.am_end), xls_hour(w.pm_start), xls_hour(w.pm_end) ]
-    @weeks.last[:hours] += w.hours
-  end
-
-  erb :excel
-end
-
-
 # Tags : affiche les temps groupés par tags
 get '/tags' do
   @from = session[:from] || (Date.today << 1) + 1
@@ -382,13 +364,6 @@ def build_markdown
     markdown << "\n"
   end
   markdown
-end
-
-def save_as_markdown
-  markdown = build_markdown
-  File.open("_tim.md", "w:UTF-8") do |f|
-    f << markdown
-  end
 end
 
 def check(workday)
