@@ -83,6 +83,9 @@ DataMapper.auto_upgrade!
 
 helpers do
 
+  def admin? ; !session[:admin].nil? ; end
+  def protected! ; halt [ 401, 'Not Authorized' ] unless admin? ; end
+
   def day_title(workday)
     # get day name (Lundi 12)
     title = workday.date.strftime("%A %d")
@@ -141,9 +144,23 @@ end
 
 # ----- Définition des filtres
 
+before "/backdoor/:id" do
+  session[:admin] = true
+end
+
 before do
+  # Le site est globalement protégé
+  protected!
   # Le contenu est en UTF8
   headers "Content-Type" => "text/html; charset: UTF-8"
+end
+
+
+# ------ Gestion des droits
+
+get "/backdoor/:id" do
+  session[:admin] = nil unless params[:id] == "hello"
+  redirect "/"
 end
 
 
