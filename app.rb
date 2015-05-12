@@ -400,10 +400,10 @@ end
 
 # Bookmark.Index : affiche les 25 dernières liens
 get "/bookmarks" do
+  session[:current_tag] = "*"
   @bookmarks = Bookmark.all(:offset => 0, :limit => 25, :order => [:id.desc])
   @bookmark = Bookmark.new
   @tags = get_tags
-  @current_tag = "*"
   erb :"bookmarks/index"
 end
 
@@ -419,6 +419,8 @@ post "/bookmarks" do
   @bookmark = check_bookmark(@bookmark)
   if @bookmark.save
     status 201
+    session[:current_tag] = "*" unless @bookmark.tags.include? session[:current_tag]
+    redirect "/bookmarks/tags/#{session[:current_tag]}" unless session[:current_tag] == "*"
     redirect "/bookmarks"
   else
     status 400
@@ -439,6 +441,7 @@ put "/bookmarks/:id" do
   @bookmark = check_bookmark(@bookmark)
   if @bookmark.save
     status 201
+    redirect "/bookmarks/tags/#{session[:current_tag]}" unless session[:current_tag] == "*"
     redirect "/bookmarks"
   else
     status 400
@@ -449,12 +452,12 @@ end
 
 # Bookmark.Tags : affiche les liens liés à un tag
 get "/bookmarks/tags/:tag" do
+  session[:current_tag] = params[:tag]
   tag = params[:tag]
   tag = "%#{tag}%"
   @bookmarks = Bookmark.all(:tags.like => tag, :order => [:id.desc])
   @bookmark = Bookmark.new
   @tags = get_tags
-  @current_tag = params[:tag]
   erb :"bookmarks/index"
 end
 

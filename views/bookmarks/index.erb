@@ -4,14 +4,14 @@
 <% @tags.each do |tag, count| %><%= tag_link(tag, count) %>
 <% end %></div>
 
-<h3>Tags // <%= @current_tag %></h3>
+<h3>Tags // <%= session[:current_tag] %></h3>
 
 <ul class="links">
 <% @bookmarks.each do |bookmark| %>
   <li>
     <p>
       <%= bookmark_link(bookmark) %>
-      <%= bookmark_tags(bookmark.tags, @current_tag) %>
+      <%= bookmark_tags(bookmark.tags, session[:current_tag]) %>
       <a class="over" href="/bookmarks/edit/<%= bookmark.id %>">edit</a>
     </p>
     <p><%= bookmark.description %></p>
