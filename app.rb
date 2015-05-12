@@ -162,78 +162,82 @@ end
 
 # ------ Gestion des droits
 
+get "/" do
+  halt [ 401, 'Not Authorized' ]
+end
+
 get "/backdoor/:id" do
   session[:admin] = nil unless params[:id] == "hello"
-  redirect "/"
+  redirect "/workdays"
 end
 
 
 # ------ Gestion des temps
 
 # Index : affiche les 10 dernières journées
-get "/" do
+get "/workdays" do
   @workdays = Workday.all(:offset => 1, :limit => 10, :order => [:date.desc])
   @workday = Workday.first(:order => [:date.desc])
-  erb :index
+  erb :"workdays/index"
 end
 
 # Workday.New : formulaire pour créer une journée
-get "/new" do
+get "/workdays/new" do
   @workday = Workday.new
   @workday.date = Date.today
-  erb :new
+  erb :"workdays/new"
 end
 
 # Workday.Create : enregistre une nouvelle journée
-post "/" do
+post "/workdays" do
   @workday = Workday.new(params[:workday])
   @workday = check_workday(@workday)
   # Enregistre la journée
   if @workday.save
     status 201
-    redirect "/"
+    redirect "/workdays"
   else
     status 400
-    erb :new
+    erb :"workdays/new"
   end
 end
 
 # Workday.Edit : formulaire pour modifier une journée
-get "/edit/:id" do
+get "/workdays/edit/:id" do
   @workday = Workday.get(params[:id])
-  erb :edit
+  erb :"workdays/edit"
 end
 
 # Workday.Update : met à jour une journée
-put "/:id" do
+put "/workdays/:id" do
   @workday = Workday.get(params[:id])
   @workday.attributes = params[:workday]
   @workday = check_workday(@workday)
   if @workday.save
     status 201
-    redirect "/"
+    redirect "/workdays"
   else
     status 400
-    erb :edit
+    erb :"workdays/edit"
   end
 end
 
 # Export : exporte les données
-get '/export' do
+get '/workdays/export' do
   content_type "text/plain"
   build_markdown
 end
 
 # Import : formulaire pour importer les données
-get '/import' do
-  erb :import
+get '/workdays/import' do
+  erb :"workdays/import"
 end
 
 # Import : importe les données
-post '/import' do
+post '/workdays/import' do
   # Il doit y avoir des données à importer
   data = params[:data].to_s.lines.to_a
-  redirect "/" if data.length == 0
+  redirect "/workdays" if data.length == 0
 
   # Vidage de la table
   Workday.destroy
@@ -318,11 +322,11 @@ post '/import' do
     workday.save
   end
 
-  redirect "/"
+  redirect "/workdays"
 end
 
 # Projects : affiche les temps groupés par projets
-get '/projects' do
+get '/workdays/projects' do
   @from = session[:from] || (Date.today << 1) + 1
   @to = session[:to] || Date.today
 
@@ -348,19 +352,19 @@ get '/projects' do
   @projects = Hash[@projects.sort_by { |project, minutes| project }]
   @projects["Total"] = total
 
-  erb :projects_list
+  erb :"projects/list"
 end
 
 # Projects : défini la période pour grouper les temps par projets
-post '/projects' do
+post '/workdays/projects' do
   session[:from] = params[:from]
   session[:to] = params[:to]
 
-  redirect "/projects"
+  redirect "/workdays/projects"
 end
 
 # Projects.Details : liste les temps imputés sur un projet
-get "/projects/:project" do
+get "/workdays/projects/:project" do
   @from = session[:from] || (Date.today << 1) + 1
   @to = session[:to] || Date.today
 
@@ -377,7 +381,7 @@ get "/projects/:project" do
         unless nb_hours.empty?
           project = infos.match( /\s+(.+)\)/ ).to_s.chop.strip.downcase
           if project == @project
-            @lines << "<a href='/edit/#{w.id}'>#{w.date.strftime('%d/%m')}</a> : #{line}"
+            @lines << "<a href='/workdays/edit/#{w.id}'>#{w.date.strftime('%d/%m')}</a> : #{line}"
             minutes = get_minutes(nb_hours)
             total += minutes
           end
@@ -387,7 +391,7 @@ get "/projects/:project" do
   end
   @project += " : " + get_days(total).to_s
 
-  erb :projects_show
+  erb :"projects/show"
 end
 
 
@@ -399,8 +403,8 @@ get "/bookmarks" do
   @bookmarks = Bookmark.all(:offset => 0, :limit => 25, :order => [:id.desc])
   @bookmark = Bookmark.new
   @tags = get_tags
-  @current_tag = ""
-  erb :"bookmarks/list"
+  @current_tag = "*"
+  erb :"bookmarks/index"
 end
 
 # Bookmark.New : formulaire pour créer un lien
@@ -451,7 +455,7 @@ get "/bookmarks/tags/:tag" do
   @bookmark = Bookmark.new
   @tags = get_tags
   @current_tag = params[:tag]
-  erb :"bookmarks/list"
+  erb :"bookmarks/index"
 end
 
 

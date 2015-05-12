@@ -6,7 +6,7 @@
 </ul>
 <% end %>
 
-<form action="/<%= @workday.id %>" method="post">
+<form action="/workdays/<%= @workday.id %>" method="post">
   <input type="hidden" name="_method" value="put" />
   <fieldset class="form">
     <% if @workdays.nil? %>

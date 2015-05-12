@@ -1,4 +1,6 @@
-<form action="/projects" method="post">
+<h3>Projets // *</h3>
+
+<form action="/workdays/projects" method="post">
   <fieldset class="form">
     <h3>
       Consultation période du
@@ -12,5 +14,5 @@
 </form>
 
 <ul><% @projects.each do |project, minutes| %>
-<%= "<li><a href=""/projects/#{project}"">#{project}</a> : #{get_days(minutes)}</li>" %>
+<%= "<li><a href=""/workdays/projects/#{project}"">#{project}</a> : #{get_days(minutes)}</li>" %>
 <% end %></ul>
