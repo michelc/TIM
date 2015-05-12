@@ -1,7 +1,7 @@
 <% if @bookmark.errors.any? %>
-  <ul>
-  <% @bookmark.errors.each do |error| %><li><%= error %></li><% end %>
-  </li>
+<ul>
+  <% @bookmark.errors.each do |error| %><li><%= error.join(" ") %></li><% end %>
+</ul>
 <% end %>
 
 <form action="/bookmarks" method="post">

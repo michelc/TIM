@@ -1,7 +1,7 @@
 <% if @workday.errors.any? %>
-  <ul>
-  <% @workday.errors.each do |error| %><li><%= error %></li><% end %>
-  </li>
+<ul>
+  <% @workday.errors.each do |error| %><li><%= error.join(" ") %></li><% end %>
+</ul>
 <% end %>
 
 <form action="/" method="post">

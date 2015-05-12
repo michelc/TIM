@@ -1,9 +1,9 @@
-<h3><%= @bookmark.title %></h3>
+<h3><%= bookmark_title(@bookmark) %></h3>
 
 <% if @bookmark.errors.any? %>
-  <ul>
-  <% @bookmark.errors.each do |error| %><li><%= error %></li><% end %>
-  </li>
+<ul>
+  <% @bookmark.errors.each do |error| %><li><%= error.join(" ") %></li><% end %>
+</ul>
 <% end %>
 
 <form action="/bookmarks/<%= @bookmark.id %>" method="post">

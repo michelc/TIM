@@ -1,4 +1,4 @@
-<form action="/tags" method="post">
+<form action="/projects" method="post">
   <fieldset class="form">
     <h3>
       Consultation période du
@@ -11,6 +11,6 @@
   </fieldset>
 </form>
 
-<ul><% @tags.each do |tag, minutes| %>
-<%= "<li><a href=""/tags/#{tag}"">#{tag}</a> : #{get_days(minutes)}</li>" %>
+<ul><% @projects.each do |project, minutes| %>
+<%= "<li><a href=""/projects/#{project}"">#{project}</a> : #{get_days(minutes)}</li>" %>
 <% end %></ul>

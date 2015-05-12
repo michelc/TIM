@@ -29,7 +29,7 @@ configure do
   set :protection, :except => :frame_options
 
   # Activation des sessions
-  # (nécessaire pour conserver les périodes de consultation des tags)
+  # (nécessaire pour conserver les périodes de consultation des projets)
   enable :sessions
 end
 
@@ -42,15 +42,15 @@ DataMapper.setup(:default, ENV["DATABASE_URL"] || "sqlite3://#{Dir.pwd}/_tim.db"
 class Workday
   include DataMapper::Resource
 
-  property :id,       Serial
-  property :date,     DateTime,   :required => true, :messages => { :presence => "Le jour est obligatoire" }
-  property :am_start, String,     :length => 5
-  property :am_end,   String,     :length => 5
-  property :pm_start, String,     :length => 5
-  property :pm_end,   String,     :length => 5
-  property :hours,    Integer
-  property :detail,   Text
-  property :duration, Integer
+  property :id          , Serial
+  property :date        , DateTime,   :required => true, :messages => { :presence => "Le jour est obligatoire" }
+  property :am_start    , String,     :length => 5
+  property :am_end      , String,     :length => 5
+  property :pm_start    , String,     :length => 5
+  property :pm_end      , String,     :length => 5
+  property :hours       , Integer
+  property :detail      , Text
+  property :duration    , Integer
 end
 
 class Bookmark
@@ -118,25 +118,29 @@ helpers do
     (d*4).round / 4.0
   end
 
-  def link_title(bookmark)
-    title = if bookmark.title == "*"
-              bookmark.url.sub("https://", "").sub("http://", "").sub("www.", "").sub(/\/.*/, "")
-            else
-              bookmark.title
-            end
+  def bookmark_title(bookmark)
+    if bookmark.title == "*"
+      bookmark.url.sub("https://", "").sub("http://", "").sub("www.", "").sub(/\/.*/, "")
+    else
+      bookmark.title
+    end
+  end
+
+  def bookmark_link(bookmark)
+    title = bookmark_title(bookmark)
     "<a class='lnk' href='#{bookmark.url}'>#{title}</a>"
   end
 
-  def link_group(item, count)
-    css = "font-size:#{90 + (count * 7.5)}%"
-    "<a style='#{css}' href='/bookmarks/tags/#{item}' title='#{count}'>#{item}</a>"
-  end
-
-  def list_tags(text, current_tag)
+  def bookmark_tags(text, current_tag)
     tags = text.sub(current_tag, "").split(" ").map do |tag|
       "<a class='tag' href='/bookmarks/tags/#{tag}'>##{tag}</a>"
     end
     tags.join(" ")
+  end
+
+  def tag_link(tag, count)
+    font_size = "font-size:#{90 + (count * 7.5)}%"
+    "<a style='#{font_size}' href='/bookmarks/tags/#{tag}' title='#{count}'>#{tag}</a>"
   end
 
 end
@@ -303,7 +307,7 @@ post '/import' do
         workday.pm_end = hours[3]
         workday.pm_end = hours[3].split(" ")[0] if hours[3].include? " "
       else
-        # * Un commentaire (HHhMM un_tag)
+        # * Un commentaire (HHhMM un_projet)
         # => permet de récupérer le travail du jour
         workday.detail << line[2..-1]
       end
@@ -317,12 +321,12 @@ post '/import' do
   redirect "/"
 end
 
-# Tags : affiche les temps groupés par tags
-get '/tags' do
+# Projects : affiche les temps groupés par projets
+get '/projects' do
   @from = session[:from] || (Date.today << 1) + 1
   @to = session[:to] || Date.today
 
-  @tags = Hash.new(0)
+  @projects = Hash.new(0)
   total = 0
 
   workdays = Workday.all(:date => @from..@to, :order => [:date.asc])
@@ -332,35 +336,35 @@ get '/tags' do
       unless infos.empty?
         nb_hours = check_hour(infos)
         unless nb_hours.empty?
-          tag = infos.match( /\s+(.+)\)/ ).to_s.chop.strip.downcase
-          min = get_minutes(nb_hours)
-          @tags[tag] += min
-          total += min
+          project = infos.match( /\s+(.+)\)/ ).to_s.chop.strip.downcase
+          minutes = get_minutes(nb_hours)
+          @projects[project] += minutes
+          total += minutes
         end
       end
     end
   end
 
-  @tags = Hash[@tags.sort_by { |tag, min| tag }]
-  @tags["Total"] = total
+  @projects = Hash[@projects.sort_by { |project, minutes| project }]
+  @projects["Total"] = total
 
-  erb :tags_list
+  erb :projects_list
 end
 
-# Tags : défini la période pour grouper les temps par tag
-post '/tags' do
+# Projects : défini la période pour grouper les temps par projets
+post '/projects' do
   session[:from] = params[:from]
   session[:to] = params[:to]
 
-  redirect "/tags"
+  redirect "/projects"
 end
 
-# Tags.Details
-get "/tags/:tag" do
+# Projects.Details : liste les temps imputés sur un projet
+get "/projects/:project" do
   @from = session[:from] || (Date.today << 1) + 1
   @to = session[:to] || Date.today
 
-  @tag = params[:tag]
+  @project = params[:project]
   @lines = []
   total = 0
 
@@ -371,19 +375,19 @@ get "/tags/:tag" do
       unless infos.empty?
         nb_hours = check_hour(infos)
         unless nb_hours.empty?
-          tag = infos.match( /\s+(.+)\)/ ).to_s.chop.strip.downcase
-          if tag == @tag
+          project = infos.match( /\s+(.+)\)/ ).to_s.chop.strip.downcase
+          if project == @project
             @lines << "<a href='/edit/#{w.id}'>#{w.date.strftime('%d/%m')}</a> : #{line}"
-            min = get_minutes(nb_hours)
-            total += min
+            minutes = get_minutes(nb_hours)
+            total += minutes
           end
         end
       end
     end
   end
-  @tag += " : " + get_days(total).to_s
+  @project += " : " + get_days(total).to_s
 
-  erb :tags_show
+  erb :projects_show
 end
 
 
@@ -394,7 +398,7 @@ end
 get "/bookmarks" do
   @bookmarks = Bookmark.all(:offset => 0, :limit => 25, :order => [:id.desc])
   @bookmark = Bookmark.new
-  @groups = group_tags
+  @tags = get_tags
   @current_tag = ""
   erb :"bookmarks/list"
 end
@@ -445,7 +449,7 @@ get "/bookmarks/tags/:tag" do
   tag = "%#{tag}%"
   @bookmarks = Bookmark.all(:tags.like => tag, :order => [:id.desc])
   @bookmark = Bookmark.new
-  @groups = group_tags
+  @tags = get_tags
   @current_tag = params[:tag]
   erb :"bookmarks/list"
 end
@@ -580,15 +584,13 @@ def text_to_tags(text)
   tags.sort.uniq.join(" ")
 end
 
-def group_tags
-  groups = Hash.new(0)
-  total = 0
+def get_tags
+  tags = Hash.new(0)
   bookmarks = Bookmark.all(:fields => [:tags])
   bookmarks.each do |bookmark|
     bookmark.tags.split(" ").each do |tag|
-      groups[tag] += 1
-      total += 1
+      tags[tag] += 1
     end
   end
-  Hash[groups.sort_by { |tag, nb| tag }]
+  Hash[tags.sort_by { |tag, count| tag }]
 end
