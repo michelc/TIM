@@ -1,0 +1,30 @@
+<% if @bookmark.errors.any? %>
+  <ul>
+  <% @bookmark.errors.each do |error| %><li><%= error %></li><% end %>
+  </li>
+<% end %>
+
+<form action="/bookmarks" method="post">
+  <fieldset class="form">
+    <p>
+      <label for="url">URL</label>
+      <input id="url" name="bookmark[url]" type="text" value="<%= @bookmark.url %>" />
+    </p>
+    <p>
+      <label for="title">Titre</label>
+      <input id="title" name="bookmark[title]" type="text" value="<%= @bookmark.title %>" />
+    </p>
+    <p>
+      <label for="description">Description</label>
+      <textarea id="description" name="bookmark[description]" cols="20" rows="2" class="small"><%= @bookmark.description %></textarea>
+    </p>
+    <p>
+      <label for="tags">Liste tags</label>
+      <input id="tags" name="bookmark[tags]" type="text" value="<%= @bookmark.tags %>" />
+    </p>
+    <p class="submit">
+      <input type="submit" value="Ajouter" />
+      <a href="/bookmarks">Annuler</a>
+    </p>
+  </fieldset>
+</form>

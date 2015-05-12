@@ -259,8 +259,13 @@ input.short
 
 textarea
 {
-  height: 20ex;
+  height: 16ex;
   width: 660px;
+}
+
+textarea.small
+{
+  height: 8ex;
 }
 
 /* Textarea pour import depuis Markdown */
@@ -268,15 +273,6 @@ textarea.wide
 {
   height: 75ex;
   width: 820px;
-}
-
-/* Textarea pour copier / coller vers Excel */
-textarea.excel
-{
-  font-size: 90%;
-  height: 6em;
-  overflow: hidden;
-  width: 300px;
 }
 
 select
@@ -289,8 +285,7 @@ input[type="number"]:focus,
 input[type="text"]:focus,
 input[type="password"]:focus,
 select:focus,
-textarea:focus,
-textarea.excel:hover
+textarea:focus
 {
   outline-style: solid;
   outline-width: 2px;
@@ -370,14 +365,16 @@ tbody tr:hover
   background-color: #fafafa;
 }
 
-h3 a.over
+a.over
 {
+  border-radius: 2px;
   font-size: small;
-  margin-left: 20px;
+  margin-left: 10px;
   padding: 0 3px;
   visibility: hidden;
 }
 
+p:hover a.over,
 h3:hover a.over
 {
   background-color: #ccc;
@@ -389,4 +386,47 @@ h3:hover a.over
 .not_important
 {
   color: #999;
+}
+
+
+/* --------------------------------------------------
+*  Bookmarks
+-------------------------------------------------- */
+
+.tags
+{
+  background-color: #f4f4f4;
+  border-bottom: 1px solid #ddd;
+  border-top: 1px solid #ddd;
+  font-size: 110%;
+  margin-bottom: 1em;
+  padding: 1em 0;
+  text-align: center;
+}
+
+.tags a
+{
+  color: blue !important;
+  margin: 0 0.25rem;
+  text-decoration: none;
+}
+
+.links a.lnk
+{
+  text-decoration: none;
+}
+
+.links a:hover.lnk
+{
+  text-decoration: underline;
+}
+
+.links a.tag
+{
+  background-color: #f4f4f4;
+  border-radius: 2px;
+  color: #777;
+  margin-left: 10px;
+  padding: 0 2px;
+  text-decoration: none;
 }

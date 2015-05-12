@@ -4,6 +4,7 @@ require "sinatra"
 require "data_mapper"
 require "erb"
 require_relative "lib/date_fr"
+require_relative "lib/extend_string"
 
 require "sinatra/reloader" if development?
 
@@ -32,6 +33,7 @@ configure do
   enable :sessions
 end
 
+
 # ----- Configuration de DataMapper
 
 DataMapper::Logger.new("debug.log", :debug) if development?
@@ -49,6 +51,29 @@ class Workday
   property :hours,    Integer
   property :detail,   Text
   property :duration, Integer
+end
+
+class Bookmark
+  include DataMapper::Resource
+
+  property :id          , Serial
+  property :url         , String,
+                          :length => 255,
+                          :required => true,
+                          :messages => { :presence => "L'url du lien est obligatoire" },
+                          :unique_index => true
+  property :title       , String,
+                          :length => 100,
+                          :required => true,
+                          :messages => { :presence => "Le titre est obligatoire" }
+  property :description , String,
+                          :length => 2000,
+                          :default => ""
+  property :tags        , String,
+                          :length => 255,
+                          :default => ""
+  property :create_at   , DateTime,
+                          :default => Date.today
 end
 
 DataMapper.auto_upgrade!
@@ -90,6 +115,27 @@ helpers do
     (d*4).round / 4.0
   end
 
+  def link_title(bookmark)
+    title = if bookmark.title == "*"
+              bookmark.url.sub("https://", "").sub("http://", "").sub("www.", "").sub(/\/.*/, "")
+            else
+              bookmark.title
+            end
+    "<a class='lnk' href='#{bookmark.url}'>#{title}</a>"
+  end
+
+  def link_group(item, count)
+    css = "font-size:#{90 + (count * 7.5)}%"
+    "<a style='#{css}' href='/bookmarks/tags/#{item}' title='#{count}'>#{item}</a>"
+  end
+
+  def list_tags(text, current_tag)
+    tags = text.sub(current_tag, "").split(" ").map do |tag|
+      "<a class='tag' href='/bookmarks/tags/#{tag}'>##{tag}</a>"
+    end
+    tags.join(" ")
+  end
+
 end
 
 
@@ -101,7 +147,7 @@ before do
 end
 
 
-# ----- L'application
+# ------ Gestion des temps
 
 # Index : affiche les 10 dernières journées
 get "/" do
@@ -109,7 +155,6 @@ get "/" do
   @workday = Workday.first(:order => [:date.desc])
   erb :index
 end
-
 
 # Workday.New : formulaire pour créer une journée
 get "/new" do
@@ -121,7 +166,7 @@ end
 # Workday.Create : enregistre une nouvelle journée
 post "/" do
   @workday = Workday.new(params[:workday])
-  @workday = check(@workday)
+  @workday = check_workday(@workday)
   # Enregistre la journée
   if @workday.save
     status 201
@@ -131,7 +176,6 @@ post "/" do
     erb :new
   end
 end
-
 
 # Workday.Edit : formulaire pour modifier une journée
 get "/edit/:id" do
@@ -143,7 +187,7 @@ end
 put "/:id" do
   @workday = Workday.get(params[:id])
   @workday.attributes = params[:workday]
-  @workday = check(@workday)
+  @workday = check_workday(@workday)
   if @workday.save
     status 201
     redirect "/"
@@ -153,13 +197,11 @@ put "/:id" do
   end
 end
 
-
 # Export : exporte les données
 get '/export' do
   content_type "text/plain"
   build_markdown
 end
-
 
 # Import : formulaire pour importer les données
 get '/import' do
@@ -199,7 +241,7 @@ post '/import' do
       # ## Semaine du 13 au 17 Janvier
       # => permet de récupérer le mois
       unless workday.nil?
-        workday = check(workday)
+        workday = check_workday(workday)
         workday.save
         workday = nil
       end
@@ -217,7 +259,7 @@ post '/import' do
       # ### NomJour 99 (HHhMM)
       # => permet de récupérer le jour du mois
       unless workday.nil?
-        workday = check(workday)
+        workday = check_workday(workday)
         workday.save
       end
       current_day = line.split(" ")[2].to_i
@@ -251,13 +293,12 @@ post '/import' do
     end
   end
   unless workday.nil?
-    workday = check(workday)
+    workday = check_workday(workday)
     workday.save
   end
 
   redirect "/"
 end
-
 
 # Tags : affiche les temps groupés par tags
 get '/tags' do
@@ -329,8 +370,71 @@ get "/tags/:tag" do
 end
 
 
+# ------ Gestion des liens
 
-# ----- Fonctions utilitaires
+
+# Bookmark.Index : affiche les 25 dernières liens
+get "/bookmarks" do
+  @bookmarks = Bookmark.all(:offset => 0, :limit => 25, :order => [:id.desc])
+  @bookmark = Bookmark.new
+  @groups = group_tags
+  @current_tag = ""
+  erb :"bookmarks/list"
+end
+
+# Bookmark.New : formulaire pour créer un lien
+get "/bookmarks/new" do
+  @bookmark = Bookmark.new
+  erb :"bookmarks/new"
+end
+
+# Bookmark.Create : enregistre un nouveau lien
+post "/bookmarks" do
+  @bookmark = Bookmark.new(params[:bookmark])
+  @bookmark = check_bookmark(@bookmark)
+  if @bookmark.save
+    status 201
+    redirect "/bookmarks"
+  else
+    status 400
+    erb :"bookmarks/new"
+  end
+end
+
+# Bookmark.Edit : formulaire pour modifier un lien
+get "/bookmarks/edit/:id" do
+  @bookmark = Bookmark.get(params[:id])
+  erb :"bookmarks/edit"
+end
+
+# Bookmark.Update : met à jour un lien
+put "/bookmarks/:id" do
+  @bookmark = Bookmark.get(params[:id])
+  @bookmark.attributes = params[:bookmark]
+  @bookmark = check_bookmark(@bookmark)
+  if @bookmark.save
+    status 201
+    redirect "/bookmarks"
+  else
+    status 400
+    erb :"bookmarks/edit"
+  end
+end
+
+
+# Bookmark.Tags : affiche les liens liés à un tag
+get "/bookmarks/tags/:tag" do
+  tag = params[:tag]
+  tag = "%#{tag}%"
+  @bookmarks = Bookmark.all(:tags.like => tag, :order => [:id.desc])
+  @bookmark = Bookmark.new
+  @groups = group_tags
+  @current_tag = params[:tag]
+  erb :"bookmarks/list"
+end
+
+
+# ----- Fonctions utilitaires gestion des temps
 
 def build_markdown
   current_year = 0
@@ -366,7 +470,7 @@ def build_markdown
   markdown
 end
 
-def check(workday)
+def check_workday(workday)
   if workday.detail.start_with? "!"
     workday.am_start = "8h"
     workday.am_end = "12h"
@@ -436,4 +540,38 @@ def sum_duration(detail)
   end
 
   duration
+end
+
+
+# ----- Fonctions utilitaires gestion des liens
+
+def check_bookmark(bookmark)
+  bookmark.tags = text_to_tags(bookmark.tags)
+  bookmark
+end
+
+def text_to_tags(text)
+  # Transforme le texte en minuscule sans accents
+  text = text.removeaccents.downcase
+  # Ne conserve que l'espace, les lettres et les nombres, le tiret et le point
+  text.gsub!(/[^ a-z0-9\-\.]/, "")
+  # Découpage et vérification des différents tags
+  tags = text.strip.split(/\s+/).map do |tag|
+    tag
+  end
+  # Renvoie les tags triés sous forme de texte
+  tags.sort.uniq.join(" ")
+end
+
+def group_tags
+  groups = Hash.new(0)
+  total = 0
+  bookmarks = Bookmark.all(:fields => [:tags])
+  bookmarks.each do |bookmark|
+    bookmark.tags.split(" ").each do |tag|
+      groups[tag] += 1
+      total += 1
+    end
+  end
+  Hash[groups.sort_by { |tag, nb| tag }]
 end

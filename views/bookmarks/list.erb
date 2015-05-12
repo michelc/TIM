@@ -1,0 +1,20 @@
+<%= erb :"bookmarks/new" %>
+
+<div class="tags">
+<% @groups.each do |item, nb| %><%= link_group(item, nb) %>
+<% end %></div>
+
+<h3><%= @current_tag %></h3>
+
+<ul class="links">
+<% @bookmarks.each do |bookmark| %>
+  <li>
+    <p>
+      <%= link_title(bookmark) %>
+      <%= list_tags(bookmark.tags, @current_tag) %>
+      <a class="over" href="/bookmarks/edit/<%= bookmark.id %>">edit</a>
+    </p>
+    <p><%= bookmark.description %></p>
+  </li>
+<% end %>
+</ul>
