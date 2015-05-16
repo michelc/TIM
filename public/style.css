@@ -388,6 +388,14 @@ h3:hover a.over
   color: #999;
 }
 
+/* Reporting par semaine */
+.weeks td
+{
+  border-left: solid 1px #ddd;
+  text-align: center;
+  width: 12.5%;
+}
+
 
 /* --------------------------------------------------
 *  Bookmarks

@@ -181,6 +181,15 @@ get "/workdays" do
   erb :"workdays/index"
 end
 
+# Week : affiche une semaine particulière
+get "/workdays/weeks/:week" do
+  from = Date.parse(params[:week])
+  5.times { from -= 1 unless from.cwday == 7 }
+  to = from + 6
+  @workdays = Workday.all(:date => from..to, :order => [:date.asc])
+  erb :"workdays/index"
+end
+
 # Workday.New : formulaire pour créer une journée
 get "/workdays/new" do
   @workday = Workday.new
@@ -325,16 +334,21 @@ post '/workdays/import' do
   redirect "/workdays"
 end
 
-# Projects : affiche les temps groupés par projets
-get '/workdays/projects' do
+# Report : analyse les temps par projet et par semaine
+get '/workdays/reports' do
   @from = session[:from] || (Date.today << 1) + 1
   @to = session[:to] || Date.today
 
   @projects = Hash.new(0)
   total = 0
 
+  @weeks = []
+  weeknum = -1
+  week = []
+
   workdays = Workday.all(:date => @from..@to, :order => [:date.asc])
   workdays.each do |w|
+    # analyse par projet
     w.detail.to_s.split("\n").each do |line|
       infos = line.match(/(\(.*\))/).to_s
       unless infos.empty?
@@ -347,24 +361,43 @@ get '/workdays/projects' do
         end
       end
     end
+    # analyse par semaine
+    if weeknum != w.date.cweek
+      @weeks << week unless weeknum == -1
+      week = [w.date.to_date, "?", "?", "?", "?", "?", 0]
+      weeknum = w.date.cweek
+    end
+    day = w.date.cwday
+    if (w.hours - w.duration).abs > 15
+      week[day] = get_hours(w.hours) + " / " + get_hours(w.duration)
+      week[day] += " !" if (w.hours - w.duration) < 0
+    else
+      week[day] = ""
+    end
+    week[6] += w.hours
   end
 
+  # Total analyse par projet
   @projects = Hash[@projects.sort_by { |project, minutes| project }]
   @projects["Total"] = total
 
-  erb :"projects/list"
+  # Fin analyse par semaine
+  @weeks << week unless weeknum == -1
+  @weeks.reverse!
+
+  erb :"reports/list"
 end
 
-# Projects : défini la période pour grouper les temps par projets
-post '/workdays/projects' do
+# Report : défini la période pour analyser les temps
+post '/workdays/reports' do
   session[:from] = params[:from]
   session[:to] = params[:to]
 
-  redirect "/workdays/projects"
+  redirect "/workdays/reports"
 end
 
-# Projects.Details : liste les temps imputés sur un projet
-get "/workdays/projects/:project" do
+# Report.Details : liste les temps imputés sur un projet
+get "/workdays/reports/:project" do
   @from = session[:from] || (Date.today << 1) + 1
   @to = session[:to] || Date.today
 
@@ -391,7 +424,7 @@ get "/workdays/projects/:project" do
   end
   @project += " : " + get_days(total).to_s
 
-  erb :"projects/show"
+  erb :"reports/project"
 end
 
 

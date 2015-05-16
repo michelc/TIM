@@ -1,0 +1,41 @@
+<form action="/workdays/reports" method="post">
+  <h3>
+    Reporting période du
+    <input class="short" id="from" name="from" type="text" value="<%= @from %>" />
+    au
+    <input class="short" id="to" name="to" type="text" value="<%= @to %>" />
+    &nbsp;
+    <input type="submit" value="Ok" />
+  </h3>
+</form>
+
+<ul><% @projects.each do |project, minutes| %>
+<%= "<li><a href=""/workdays/reports/#{project}"">#{project}</a> : #{get_days(minutes)}</li>" %>
+<% end %></ul>
+
+<br>
+
+<table class="weeks">
+  <thead>
+    <tr>
+      <th>Semaine</th>
+      <th>Lun</th>
+      <th>Mar</th>
+      <th>Mer</th>
+      <th>Jeu</th>
+      <th>Ven</th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody><% @weeks.each do |week| %>
+    <tr>
+      <td><a href="/workdays/weeks/<%= week[0] %>"><%= week[0] %></a></td>
+      <td><%= week[1] %></td>
+      <td><%= week[2] %></td>
+      <td><%= week[3] %></td>
+      <td><%= week[4] %></td>
+      <td><%= week[5] %></td>
+      <td><%= get_hours(week[6]) %></td>
+    </tr>
+  <% end %></tbody>
+</table>
