@@ -25,6 +25,7 @@
       <th>Jeu</th>
       <th>Ven</th>
       <th>Total</th>
+      <th>Ecart</th>
     </tr>
   </thead>
   <tbody><% @weeks.each do |week| %>
@@ -36,6 +37,10 @@
       <td><%= week[4] %></td>
       <td><%= week[5] %></td>
       <td><%= get_hours(week[6]) %></td>
+      <td><%= get_hours(week[7]) %></td>
     </tr>
   <% end %></tbody>
 </table>
+
+<br>
+<p>Ecart heures à ce jour <%= get_hours(@diff) %></p>

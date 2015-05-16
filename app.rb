@@ -9,18 +9,6 @@ require_relative "lib/extend_string"
 require "sinatra/reloader" if development?
 
 
-# ----- Calcul écart heures travaillées / obligatoires
-#
-# SELECT Nb_Heures / 60 AS Heures
-#      , Nb_Heures - ((Nb_Heures / 60) * 60) AS Minutes
-# FROM   (SELECT 497              -- écart de 8h17 au 1/1/14
-#              + SUM(hours)       -- nb heures travaillées
-#              - (COUNT(*) * 444) -- nb jours * 7h24
-#              AS Nb_Heures
-#         FROM   workdays
-#         WHERE  date <= '2015-01-01')
-
-
 # ----- Configuration de Sinatra
 
 configure do
@@ -345,6 +333,7 @@ get '/workdays/reports' do
   @weeks = []
   weeknum = -1
   week = []
+  diff = get_diff(@from)
 
   workdays = Workday.all(:date => @from..@to, :order => [:date.asc])
   workdays.each do |w|
@@ -364,7 +353,7 @@ get '/workdays/reports' do
     # analyse par semaine
     if weeknum != w.date.cweek
       @weeks << week unless weeknum == -1
-      week = [w.date.to_date, "?", "?", "?", "?", "?", 0]
+      week = [w.date.to_date, "?", "?", "?", "?", "?", 0, diff]
       weeknum = w.date.cweek
     end
     day = w.date.cwday
@@ -375,6 +364,8 @@ get '/workdays/reports' do
       week[day] = ""
     end
     week[6] += w.hours
+    week[7] += w.hours - 444
+    diff += w.hours - 444
   end
 
   # Total analyse par projet
@@ -384,6 +375,7 @@ get '/workdays/reports' do
   # Fin analyse par semaine
   @weeks << week unless weeknum == -1
   @weeks.reverse!
+  @diff = get_diff(Date.today.next_year)
 
   erb :"reports/list"
 end
@@ -601,6 +593,16 @@ def sum_duration(detail)
   end
 
   duration
+end
+
+def get_diff(max_date)
+  nb_minutes = Workday.sum(:hours, :date.lt => max_date) || 0
+  nb_days = Workday.count(:date.lt => max_date) || 0
+  diff  = 497              # écart de 8h17 au 1/1/14
+  diff += nb_minutes       # nb minutes travaillées
+  diff -= (nb_days * 444)  # nb jours * 7h24
+
+  diff
 end
 
 
