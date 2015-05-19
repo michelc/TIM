@@ -415,6 +415,7 @@ h3:hover a.over
 .tags a
 {
   color: blue !important;
+  display: inline-block;
   margin: 0 0.25rem;
   text-decoration: none;
 }
