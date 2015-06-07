@@ -555,14 +555,6 @@ def check_hour(text)
   hour
 end
 
-def xls_hour(hour)
-  minutes = get_minutes(hour)
-  h = minutes / 60
-  m = minutes - (h * 60)
-
-  "%02d:%02d" % [ h, m ]
-end
-
 def sum_hours(workday)
   am_start = get_minutes(workday.am_start)
   am_end = get_minutes(workday.am_end)
