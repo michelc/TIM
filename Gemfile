@@ -2,14 +2,14 @@ source 'http://rubygems.org'
 
 ruby "1.9.3"
 
-gem "sinatra", "1.4.4"
-gem "data_mapper"
+gem "sinatra"
+gem "sequel"
 
 group :development do
-  gem "dm-sqlite-adapter"
+  gem "sqlite3"
+  gem "sinatra-contrib"
 end
 
 group :production do
   gem "pg"
-  gem "dm-postgres-adapter"
 end

@@ -1,8 +1,9 @@
 # encoding: UTF-8
 
 require "sinatra"
-require "data_mapper"
+require "sequel"
 require "erb"
+require "logger"
 require_relative "lib/date_fr"
 require_relative "lib/extend_string"
 
@@ -22,49 +23,26 @@ configure do
 end
 
 
-# ----- Configuration de DataMapper
+# ----- Configuration de Sequel
 
-DataMapper::Logger.new("debug.log", :debug) if development?
-DataMapper.setup(:default, ENV["DATABASE_URL"] || "sqlite3://#{Dir.pwd}/_tim.db")
+# CHERCHER: Sequel / Plugins / ValidationHelpers / DEFAULT_OPTIONS messages en français
 
-class Workday
-  include DataMapper::Resource
+# URI.parse("sqlite://#{Dir.pwd}/_tim.db")
+# = URI.parse("sqlite://C:/Ruby/_projets/TIM2/_tim.sql")
+# => "sqlite://C/Ruby/_projets/TIM2/_tim.sql" !!!
 
-  property :id          , Serial
-  property :date        , DateTime,   :required => true, :messages => { :presence => "Le jour est obligatoire" }
-  property :am_start    , String,     :length => 5
-  property :am_end      , String,     :length => 5
-  property :pm_start    , String,     :length => 5
-  property :pm_end      , String,     :length => 5
-  property :hours       , Integer
-  property :detail      , Text
-  property :duration    , Integer
+DB = Sequel.connect(ENV["DATABASE_URL"] || "sqlite://_tim.db")
+DB.loggers << Logger.new("debug.log") if development?
+
+# http://stackoverflow.com/questions/23754471/sequel-dry-between-schema-migration-and-model-validate-method
+Sequel::Model.raise_on_save_failure = false
+Sequel::Model.plugin :auto_validations
+
+class Workday < Sequel::Model
 end
 
-class Bookmark
-  include DataMapper::Resource
-
-  property :id          , Serial
-  property :url         , String,
-                          :length => 255,
-                          :required => true,
-                          :messages => { :presence => "L'url du lien est obligatoire" },
-                          :unique_index => true
-  property :title       , String,
-                          :length => 100,
-                          :required => true,
-                          :messages => { :presence => "Le titre est obligatoire" }
-  property :description , String,
-                          :length => 2000,
-                          :default => ""
-  property :tags        , String,
-                          :length => 255,
-                          :default => ""
-  property :create_at   , DateTime,
-                          :default => Date.today
+class Bookmark < Sequel::Model
 end
-
-DataMapper.auto_upgrade!
 
 
 # ----- Définition des helpers pour les vues
@@ -164,8 +142,8 @@ end
 
 # Index : affiche les 10 dernières journées
 get "/workdays" do
-  @workdays = Workday.all(:offset => 1, :limit => 10, :order => [:date.desc])
-  @workday = Workday.first(:order => [:date.desc])
+  @workdays = Workday.limit(10).offset(1).reverse_order(:date).all
+  @workday = Workday.reverse_order(:date).first
   erb :"workdays/index"
 end
 
@@ -174,7 +152,7 @@ get "/workdays/weeks/:week" do
   from = Date.parse(params[:week])
   5.times { from -= 1 unless from.cwday == 7 }
   to = from + 6
-  @workdays = Workday.all(:date => from..to, :order => [:date.asc])
+  @workdays = Workday.where(:date => from..to).order(:date).all
   erb :"workdays/index"
 end
 
@@ -201,15 +179,16 @@ end
 
 # Workday.Edit : formulaire pour modifier une journée
 get "/workdays/edit/:id" do
-  @workday = Workday.get(params[:id])
+  @workday = Workday[params[:id]]
   erb :"workdays/edit"
 end
 
 # Workday.Update : met à jour une journée
 put "/workdays/:id" do
-  @workday = Workday.get(params[:id])
-  @workday.attributes = params[:workday]
+  @workday = Workday[params[:id]]
+  params[:workday].each {|key, value| @workday[key.to_sym] = value }
   @workday = check_workday(@workday)
+  #if @workday.update(params[:workday])
   if @workday.save
     status 201
     redirect "/workdays"
@@ -237,16 +216,15 @@ post '/workdays/import' do
   redirect "/workdays" if data.length == 0
 
   # Vidage de la table
-  Workday.destroy
+  Workday.delete
 
   # Réinitialisation de la séquence pour l'identifiant
-  adapter = DataMapper.repository(:default).adapter
   if settings.development?
     # SQLite
-    adapter.execute("DELETE FROM sqlite_sequence WHERE name = 'workdays'")
+    DB.run("DELETE FROM sqlite_sequence WHERE name = 'workdays'")
   else
     # PostgreSQL
-    adapter.execute("SELECT setval('workdays_id_seq', (SELECT MAX(id) FROM workdays))")
+    DB.run("SELECT setval('workdays_id_seq', (SELECT MAX(id) FROM workdays))")
   end
 
   # Importation séquentielle des données
@@ -335,7 +313,7 @@ get '/workdays/reports' do
   week = []
   diff = get_diff(@from)
 
-  workdays = Workday.all(:date => @from..@to, :order => [:date.asc])
+  workdays = Workday.where(:date => @from..@to).order(:date).all
   workdays.each do |w|
     # analyse par projet
     w.detail.to_s.split("\n").each do |line|
@@ -351,12 +329,12 @@ get '/workdays/reports' do
       end
     end
     # analyse par semaine
-    if weeknum != w.date.cweek
+    if weeknum != w.date.to_date.cweek
       @weeks << week unless weeknum == -1
       week = [w.date.to_date, "?", "?", "?", "?", "?", 0, diff]
-      weeknum = w.date.cweek
+      weeknum = w.date.to_date.cweek
     end
-    day = w.date.cwday
+    day = w.date.to_date.cwday
     if (w.hours - w.duration).abs > 15
       week[day] = get_hours(w.hours) + " / " + get_hours(w.duration)
       week[day] += " !" if (w.hours - w.duration) < 0
@@ -397,7 +375,7 @@ get "/workdays/reports/:project" do
   @lines = []
   total = 0
 
-  workdays = Workday.all(:date => @from..@to, :order => [:date.asc])
+  workdays = Workday.where(:date => @from..@to).order(:date)
   workdays.each do |w|
     w.detail.to_s.split("\n").each do |line|
       infos = line.match(/(\(.*\))/).to_s
@@ -426,7 +404,7 @@ end
 # Bookmark.Index : affiche les 25 dernières liens
 get "/bookmarks" do
   session[:current_tag] = "*"
-  @bookmarks = Bookmark.all(:offset => 0, :limit => 25, :order => [:id.desc])
+  @bookmarks = Bookmark.limit(25).reverse_order(:id).all
   @bookmark = Bookmark.new
   @tags = get_tags
   erb :"bookmarks/index"
@@ -455,14 +433,14 @@ end
 
 # Bookmark.Edit : formulaire pour modifier un lien
 get "/bookmarks/edit/:id" do
-  @bookmark = Bookmark.get(params[:id])
+  @bookmark = Bookmark[params[:id]]
   erb :"bookmarks/edit"
 end
 
 # Bookmark.Update : met à jour un lien
 put "/bookmarks/:id" do
-  @bookmark = Bookmark.get(params[:id])
-  @bookmark.attributes = params[:bookmark]
+  @bookmark = Bookmark[params[:id]]
+  params[:bookmark].each {|key, value| @bookmark[key.to_sym] = value }
   @bookmark = check_bookmark(@bookmark)
   if @bookmark.save
     status 201
@@ -480,7 +458,7 @@ get "/bookmarks/tags/:tag" do
   session[:current_tag] = params[:tag]
   tag = params[:tag]
   tag = "%#{tag}%"
-  @bookmarks = Bookmark.all(:tags.like => tag, :order => [:id.desc])
+  @bookmarks = Bookmark.where(Sequel.like(:tags, tag)).reverse_order(:id).all
   @bookmark = Bookmark.new
   @tags = get_tags
   erb :"bookmarks/index"
@@ -494,7 +472,7 @@ def build_markdown
   current_week = 0
   markdown = ""
 
-  workdays = Workday.all(:order => [:date.asc])
+  workdays = Workday.order(:date).all
   workdays.each do |w|
     year = w.date.year
     if current_year != year
@@ -588,8 +566,8 @@ def sum_duration(detail)
 end
 
 def get_diff(max_date)
-  nb_minutes = Workday.sum(:hours, :date.lt => max_date) || 0
-  nb_days = Workday.count(:date.lt => max_date) || 0
+  nb_minutes = Workday.where{ date < max_date }.sum(:hours) || 0
+  nb_days = Workday.where{ date < max_date }.count || 0
   diff  = 497              # écart de 8h17 au 1/1/14
   diff += nb_minutes       # nb minutes travaillées
   diff -= (nb_days * 444)  # nb jours * 7h24
@@ -620,7 +598,7 @@ end
 
 def get_tags
   tags = Hash.new(0)
-  bookmarks = Bookmark.all(:fields => [:tags])
+  bookmarks = Bookmark.select(:tags).all
   bookmarks.each do |bookmark|
     bookmark.tags.split(" ").each do |tag|
       tags[tag] += 1
