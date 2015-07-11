@@ -31,7 +31,7 @@ end
 # = URI.parse("sqlite://C:/Ruby/_projets/TIM2/_tim.sql")
 # => "sqlite://C/Ruby/_projets/TIM2/_tim.sql" !!!
 
-DB = Sequel.connect(ENV["DATABASE_URL"] || "sqlite://_tim.db")
+DB = Sequel.connect(ENV["DATABASE_URL"] || "sqlite://timtim.db")
 DB.loggers << Logger.new("debug.log") if development?
 
 # http://stackoverflow.com/questions/23754471/sequel-dry-between-schema-migration-and-model-validate-method
