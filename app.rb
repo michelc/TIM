@@ -6,6 +6,7 @@ require "erb"
 require "logger"
 require_relative "lib/date_fr"
 require_relative "lib/extend_string"
+require_relative "lib/small_markdown"
 
 require "sinatra/reloader" if development?
 
@@ -42,6 +43,9 @@ class Workday < Sequel::Model
 end
 
 class Bookmark < Sequel::Model
+end
+
+class Note < Sequel::Model
 end
 
 
@@ -99,14 +103,18 @@ helpers do
 
   def bookmark_tags(text, current_tag)
     tags = text.sub(current_tag, "").split(" ").map do |tag|
-      "<a class='tag' href='/bookmarks/tags/#{tag}'>##{tag}</a>"
+      "<a class='tag' href='/#{@tag_root}/tags/#{tag}'>##{tag}</a>"
     end
     tags.join(" ")
   end
 
   def tag_link(tag, count)
     font_size = "font-size:#{90 + (count * 7.5)}%"
-    "<a style='#{font_size}' href='/bookmarks/tags/#{tag}' title='#{count}'>#{tag}</a>"
+    "<a style='#{font_size}' href='/#{@tag_root}/tags/#{tag}' title='#{count}'>#{tag}</a>"
+  end
+
+  def note_link(note)
+    "<a class='lnk' href='/notes/#{note.id}'>#{note.title}</a>"
   end
 
 end
@@ -117,6 +125,9 @@ end
 before "/backdoor/:id" do
   session[:admin] = true
 end
+
+before "/bookmarks*" do @tag_root = "bookmarks" end
+before "/notes*" do @tag_root = "notes" end
 
 before do
   # Le site est globalement protégé
@@ -406,7 +417,7 @@ get "/bookmarks" do
   session[:current_tag] = "*"
   @bookmarks = Bookmark.limit(25).reverse_order(:id).all
   @bookmark = Bookmark.new
-  @tags = get_tags
+  @tags = get_tags(Bookmark.select(:tags))
   erb :"bookmarks/index"
 end
 
@@ -452,7 +463,6 @@ put "/bookmarks/:id" do
   end
 end
 
-
 # Bookmark.Tags : affiche les liens liés à un tag
 get "/bookmarks/tags/:tag" do
   session[:current_tag] = params[:tag]
@@ -460,8 +470,81 @@ get "/bookmarks/tags/:tag" do
   tag = "%#{tag}%"
   @bookmarks = Bookmark.where(Sequel.like(:tags, tag)).reverse_order(:id).all
   @bookmark = Bookmark.new
-  @tags = get_tags
+  @tags = get_tags(Bookmark.select(:tags))
   erb :"bookmarks/index"
+end
+
+
+# ------ Gestion des notes
+
+
+# Note.Index : affiche les 25 notes les plus récentes
+get "/notes" do
+  session[:current_tag] = "*"
+  @notes = Note.limit(25).reverse_order(:create_at).all
+  @tags = get_tags(Note.select(:tags))
+  erb :"notes/index"
+end
+
+# Note.New : formulaire pour créer une note
+get "/notes/new" do
+  @note = Note.new
+  erb :"notes/new"
+end
+
+# Note.Show : affiche le contenu de la note
+get "/notes/:id" do
+  @note = Note[params[:id]]
+  @html = Markdown.new(@note.content).to_html
+
+  erb :"notes/show"
+end
+
+# Note.Create : enregistre une nouvelle note
+post "/notes" do
+  @note = Note.new(params[:note])
+  @note = check_note(@note)
+  if @note.save
+    status 201
+    session[:current_tag] = "*" unless @note.tags.include? session[:current_tag]
+    redirect "/notes/tags/#{session[:current_tag]}" unless session[:current_tag] == "*"
+    redirect "/notes"
+  else
+    status 400
+    erb :"notes/new"
+  end
+end
+
+# Note.Edit : formulaire pour modifier une note
+get "/notes/edit/:id" do
+  @note = Note[params[:id]]
+  erb :"notes/edit"
+end
+
+# Note.Update : met à jour une note
+put "/notes/:id" do
+  @note = Note[params[:id]]
+  params[:note].each {|key, value| @note[key.to_sym] = value }
+  @note = check_note(@note)
+  if @note.save
+    status 201
+    # redirect "/notes/tags/#{session[:current_tag]}" unless session[:current_tag] == "*"
+    redirect "/notes/#{@note.id}"
+  else
+    status 400
+    erb :"notes/edit"
+  end
+end
+
+# Note.Tags : affiche les notes liés à un tag
+get "/notes/tags/:tag" do
+  session[:current_tag] = params[:tag]
+  tag = params[:tag]
+  tag = "%#{tag}%"
+  @notes = Note.where(Sequel.like(:tags, tag)).reverse_order(:create_at).all
+  @note = Note.new
+  @tags = get_tags(Note.select(:tags))
+  erb :"notes/index"
 end
 
 
@@ -579,13 +662,30 @@ end
 # ----- Fonctions utilitaires gestion des liens
 
 def check_bookmark(bookmark)
+  bookmark.url.strip!
+  bookmark.title.strip!
+  bookmark.description.strip!
   bookmark.tags = text_to_tags(bookmark.tags)
   bookmark
 end
 
+
+# ----- Fonctions utilitaires gestion des notes
+
+def check_note(note)
+  note.title.strip!
+  note.content.strip!
+  note.tags = text_to_tags(note.tags)
+  note.create_at = DateTime.now
+  note
+end
+
+
+# ----- Fonctions utilitaires gestion des tags
+
 def text_to_tags(text)
   # Transforme le texte en minuscule sans accents
-  text = text.removeaccents.downcase
+  text = text.strip.removeaccents.downcase
   # Ne conserve que l'espace, les lettres et les nombres, le tiret et le point
   text.gsub!(/[^ a-z0-9\-\.]/, "")
   # Découpage et vérification des différents tags
@@ -596,11 +696,10 @@ def text_to_tags(text)
   tags.sort.uniq.join(" ")
 end
 
-def get_tags
+def get_tags(sources)
   tags = Hash.new(0)
-  bookmarks = Bookmark.select(:tags).all
-  bookmarks.each do |bookmark|
-    bookmark.tags.split(" ").each do |tag|
+  sources.all.each do |source|
+    source.tags.split(" ").each do |tag|
       tags[tag] += 1
     end
   end

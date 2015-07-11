@@ -162,8 +162,26 @@ h3
 
 h4
 {
-  font-weight: normal;
+  font-size: 1.1em;
+  font-weight: bold;
 }
+
+a
+{
+  color: #00d;
+  text-decoration: none;
+}
+
+a:hover
+{
+  text-decoration: underline;
+}
+
+a:visited
+{
+  color: #909;
+}
+
 
 
 /* --------------------------------------------------
@@ -190,7 +208,6 @@ ul#nav li a
   color: #fff;
   display: inline-block;
   padding: 7px 15px;
-  text-decoration: none;
 }
 
 ul#nav li a:hover
@@ -268,11 +285,11 @@ textarea.small
   height: 8ex;
 }
 
-/* Textarea pour import depuis Markdown */
 textarea.wide
 {
-  height: 75ex;
-  width: 820px;
+  font-family: Consolas, "Lucida Console", "Courier New", monospace;
+  height: 70ex;
+  width: 690px;
 }
 
 select
@@ -375,6 +392,7 @@ a.over
 }
 
 p:hover a.over,
+h2:hover a.over,
 h3:hover a.over
 {
   background-color: #ccc;
@@ -414,20 +432,9 @@ h3:hover a.over
 
 .tags a
 {
-  color: blue !important;
+  color: #00d !important;
   display: inline-block;
   margin: 0 0.25rem;
-  text-decoration: none;
-}
-
-.links a.lnk
-{
-  text-decoration: none;
-}
-
-.links a:hover.lnk
-{
-  text-decoration: underline;
 }
 
 .links a.tag
@@ -437,5 +444,43 @@ h3:hover a.over
   color: #777;
   margin-left: 10px;
   padding: 0 2px;
+}
+
+.links a:hover.tag
+{
   text-decoration: none;
+}
+
+
+/* --------------------------------------------------
+*  Notes
+-------------------------------------------------- */
+
+.note
+{
+  font-size: 1.15em;
+}
+
+.note ol li
+{
+  margin-bottom: 20px;
+}
+
+pre
+{
+  background-color: #f4f4f4;
+  border: 5px solid #ddd;
+  font-family: Consolas, "Lucida Console", "Courier New", monospace;
+  font-size: 0.95em;
+  margin: 10px 0;
+  padding: 10px;
+  white-space: pre-wrap;
+}
+
+kbd
+{
+  background-color: #f4f4f4;
+  color: black;
+  font-family: Consolas, "Lucida Console", "Courier New", monospace;
+  padding: 2px 5px;
 }

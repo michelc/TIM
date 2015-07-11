@@ -1,0 +1,25 @@
+<br>
+
+<div class="tags">
+<% @tags.each do |tag, count| %><%= tag_link(tag, count) %>
+<% end %></div>
+
+<h3>Tags // <%= session[:current_tag] %></h3>
+
+<ul class="links">
+  <li>
+    <p>
+      <a href="/notes/new">Nouvelle</a>
+      <a class="over" href="/notes/new">new</a>
+    </p>
+  </li>
+<% @notes.each do |note| %>
+  <li>
+    <p>
+      <%= note_link(note) %>
+      <%= bookmark_tags(note.tags, session[:current_tag]) %>
+      <a class="over" href="/notes/edit/<%= note.id %>">edit</a>
+    </p>
+  </li>
+<% end %>
+</ul>
