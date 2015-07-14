@@ -481,7 +481,7 @@ end
 # Note.Index : affiche les 25 notes les plus récentes
 get "/notes" do
   session[:current_tag] = "*"
-  @notes = Note.limit(25).reverse_order(:create_at).all
+  @notes = Note.limit(50).reverse_order(:create_at).all
   @tags = get_tags(Note.select(:tags))
   erb :"notes/index"
 end
@@ -496,14 +496,14 @@ end
 get "/notes/todo" do
   @note = Note.where(:title => "TODO").first
   redirect "/notes/new" if @note == nil
-  @html = Markdown.new(@note.content).to_html
+  @html = SmallMarkdown.new(@note.content).to_html
   erb :"notes/show"
 end
 
 # Note.Show : affiche le contenu de la note
 get "/notes/:id" do
   @note = Note[params[:id]]
-  @html = Markdown.new(@note.content).to_html
+  @html = SmallMarkdown.new(@note.content).to_html
   erb :"notes/show"
 end
 
