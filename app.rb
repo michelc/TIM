@@ -117,6 +117,14 @@ helpers do
     "<a class='lnk' href='/notes/#{note.id}'>#{note.title}</a>"
   end
 
+  def add_class(text)
+    text.empty? ? "" : " class='#{text}'"
+  end
+
+  def add_title(text)
+    text.empty? ? "" : " title='#{text}'"
+  end
+
 end
 
 
@@ -552,6 +560,47 @@ get "/notes/tags/:tag" do
   @note = Note.new
   @tags = get_tags(Note.select(:tags))
   erb :"notes/index"
+end
+
+
+# ------ Affichage d'un calendrier
+
+
+get "/calendar" do
+  @col_styles = Array.new(13, "")
+  @col_styles[Date.today.month] = "Mois"
+
+  nom_jours = %w(Lun Mar Mer Jeu Ven Sam Dim)
+  lignes = []
+  6.times do
+    nom_jours.each { |j| lignes << [ j, "" ] }
+  end
+
+  @matrice = []
+  @matrice[0] = lignes
+
+  1.upto(12) do |colonne|
+    lignes = []
+    42.times { lignes << [ "", "" ] }
+
+    date = Date.new(2015, colonne, 1)
+    wd = date.wday == 0 ? 6 : date.wday - 1
+
+    32.times do
+      if date.month == colonne
+        jour = date.day.to_s
+        jour = "&nbsp;&nbsp;" + jour if date.day < 10
+        lignes[wd][0] = jour
+        lignes[wd][1] = date.to_datetime.strftime("%A %e %B")
+      end
+      date = date.next
+      wd += 1
+    end
+
+    @matrice[colonne] = lignes
+  end
+
+  erb :calendar
 end
 
 

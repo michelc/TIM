@@ -484,3 +484,48 @@ kbd
   font-family: Consolas, "Lucida Console", "Courier New", monospace;
   padding: 2px 5px;
 }
+
+
+/* --------------------------------------------------
+*  Calendar
+-------------------------------------------------- */
+
+#cal
+{
+  color: #666;
+  font-size: 135%;
+  margin-top: 20px;
+  table-display: fixed;
+}
+#cal th
+{
+  font-size: 90%;
+  font-variant: small-caps;
+}
+#cal th,
+#cal td
+{
+  padding-left: 0;
+  padding-right: 0;
+  text-align: center;
+  width: 67px;
+}
+#cal td.Mois
+{
+  background-color: #f8f8f8;
+}
+#cal tbody tr:hover td
+{
+    background-color: #eee;
+    color: black;
+    font-size: 105%;
+}
+#cal thead tr,
+#cal tr.Dim
+{
+  border-bottom: solid 1px #aaa;
+}
+#cal tfoot tr
+{
+  border-top: solid 1px #aaa;
+}
