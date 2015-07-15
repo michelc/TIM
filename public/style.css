@@ -510,7 +510,7 @@ kbd
   text-align: center;
   width: 67px;
 }
-#cal td.Mois
+#cal td.LeMois
 {
   background-color: #f8f8f8;
 }
@@ -519,6 +519,16 @@ kbd
     background-color: #eee;
     color: black;
     font-size: 105%;
+}
+#cal td.JFerie
+{
+  background-color: #6f6 !important;
+  color: white;
+}
+#cal td.LeJour
+{
+  background-color: #66f !important;
+  color: white;
 }
 #cal thead tr,
 #cal tr.Dim

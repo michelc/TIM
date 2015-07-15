@@ -568,12 +568,12 @@ end
 
 get "/calendar" do
   @col_styles = Array.new(13, "")
-  @col_styles[Date.today.month] = "Mois"
+  @col_styles[Date.today.month] = "LeMois"
 
   nom_jours = %w(Lun Mar Mer Jeu Ven Sam Dim)
   lignes = []
   6.times do
-    nom_jours.each { |j| lignes << [ j, "" ] }
+    nom_jours.each { |j| lignes << [ j, "", "" ] }
   end
 
   @matrice = []
@@ -581,7 +581,7 @@ get "/calendar" do
 
   1.upto(12) do |colonne|
     lignes = []
-    42.times { lignes << [ "", "" ] }
+    42.times { lignes << [ "", "", "" ] }
 
     date = Date.new(2015, colonne, 1)
     wd = date.wday == 0 ? 6 : date.wday - 1
@@ -592,6 +592,8 @@ get "/calendar" do
         jour = "&nbsp;&nbsp;" + jour if date.day < 10
         lignes[wd][0] = jour
         lignes[wd][1] = date.to_datetime.strftime("%A %e %B")
+        lignes[wd][2] = " JFerie" if date.is_ferie?
+        lignes[wd][2] = " LeJour" if date.is_today?
       end
       date = date.next
       wd += 1
