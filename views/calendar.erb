@@ -4,7 +4,7 @@
       <%= "<th>#{nom || '2015'}</th>" %><% end %>
     </tr>
   </thead>
-  <tbody><% 0.upto(41) do |lig| %>
+  <tbody><% 0.upto(@max_lignes) do |lig| %>
     <tr<%= add_class(@matrice[0][lig][0]) %>><% 0.upto(12) do |col| %>
       <td<%= add_class(@col_styles[col] + @matrice[col][lig][2]) + add_title(@matrice[col][lig][1]) %>><%= @matrice[col][lig][0] %></td><% end %>
     </tr><% end %>

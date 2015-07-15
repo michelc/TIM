@@ -578,6 +578,7 @@ get "/calendar" do
 
   @matrice = []
   @matrice[0] = lignes
+  @max_lignes = 0
 
   1.upto(12) do |colonne|
     lignes = []
@@ -588,6 +589,7 @@ get "/calendar" do
 
     32.times do
       if date.month == colonne
+        @max_lignes = wd if @max_lignes < wd
         jour = date.day.to_s
         jour = "&nbsp;&nbsp;" + jour if date.day < 10
         lignes[wd][0] = jour
