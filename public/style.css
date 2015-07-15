@@ -520,20 +520,25 @@ kbd
     color: black;
     font-size: 105%;
 }
-#cal td.JFerie
+#cal tbody tr td.JFerie
 {
-  background-color: #6f6 !important;
+  background-color: #6f6;
   color: white;
 }
-#cal td.LeJour
+#cal tbody tr td.LeJour
 {
-  background-color: #66f !important;
+  background-color: #66f;
   color: white;
 }
 #cal thead tr,
 #cal tr.Dim
 {
   border-bottom: solid 1px #aaa;
+}
+#cal tr.Sam,
+#cal tr.Dim
+{
+  color: #aaa;
 }
 #cal tfoot tr
 {
