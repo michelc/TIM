@@ -579,12 +579,13 @@ get "/calendar" do
   @matrice = []
   @matrice[0] = lignes
   @max_lignes = 0
+  @current_year = Date.today.year
 
   1.upto(12) do |colonne|
     lignes = []
     42.times { lignes << [ "", "", "" ] }
 
-    date = Date.new(2015, colonne, 1)
+    date = Date.new(@current_year, colonne, 1)
     wd = date.wday == 0 ? 6 : date.wday - 1
 
     32.times do

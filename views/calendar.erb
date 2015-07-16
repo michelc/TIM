@@ -1,7 +1,7 @@
 <table id="cal">
   <thead>
     <tr><% Date::ABBR_MONTHNAMES.each do |nom| %>
-      <%= "<th>#{nom || '2015'}</th>" %><% end %>
+      <%= "<th>#{nom || @current_year}</th>" %><% end %>
     </tr>
   </thead>
   <tbody><% 0.upto(@max_lignes) do |lig| %>
@@ -11,7 +11,7 @@
   </tbody>
   <tfoot>
     <tr><% Date::ABBR_MONTHNAMES.each do |nom| %>
-      <%= "<th>#{nom || '2015'}</th>" %><% end %>
+      <%= "<th>#{nom || @current_year}</th>" %><% end %>
     </tr>
   </tfoot>
 </table>
