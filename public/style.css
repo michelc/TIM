@@ -510,10 +510,6 @@ kbd
   text-align: center;
   width: 67px;
 }
-#cal td.LeMois
-{
-  background-color: #f8f8f8;
-}
 #cal tbody tr:hover td
 {
     background-color: #eee;
@@ -525,11 +521,6 @@ kbd
   background-color: #6f6;
   color: white;
 }
-#cal tbody tr td.LeJour
-{
-  background-color: #66f;
-  color: white;
-}
 #cal thead tr,
 #cal tr.Dim
 {
@@ -538,9 +529,47 @@ kbd
 #cal tr.Sam,
 #cal tr.Dim
 {
-  color: #aaa;
+  color: #999;
 }
 #cal tfoot tr
 {
   border-top: solid 1px #aaa;
+}
+
+@media screen
+{
+  #cal td.LeMois
+  {
+    background-color: #f8f8f8;
+  }
+  #cal tbody tr td.LeJour
+  {
+    background-color: #66f;
+    color: white;
+  }
+}
+
+
+/* --------------------------------------------------
+*  Print
+-------------------------------------------------- */
+
+@media print
+{
+  /* White page */
+  body
+  {
+    background-color: #fff;
+    padding: 0;
+  }
+  #page
+  {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+  ul#nav, #footer { display: none; }
+  /* Calendar */
+  #cal { font-size: 120%; }
+  #cal td { padding: 0.5px 0; }
 }
