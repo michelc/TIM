@@ -58,7 +58,7 @@ helpers do
 
   def day_title(workday)
     # get day name (Lundi 12)
-    title = workday.date.strftime("%A %d")
+    title = workday.date.to_datetime.strftime("%A %d")
     # return day name and hours
     title += " // " + get_hours(workday.hours)
     title += " // " + get_hours(workday.duration)
