@@ -1,4 +1,5 @@
 <table id="cal">
+  <colgroup><%= @col_styles.map { |s| "<col#{add_class(s)}>" }.join %></colgroup>
   <thead>
     <tr><% Date::ABBR_MONTHNAMES.each do |nom| %>
       <%= "<th>#{nom || @current_year}</th>" %><% end %>
@@ -6,7 +7,7 @@
   </thead>
   <tbody><% 0.upto(@max_lignes) do |lig| %>
     <tr<%= add_class(@matrice[0][lig][0]) %>><% 0.upto(12) do |col| %>
-      <td<%= add_class(@col_styles[col] + @matrice[col][lig][2]) + add_title(@matrice[col][lig][1]) %>><%= @matrice[col][lig][0] %></td><% end %>
+      <td<%= add_class(@matrice[col][lig][2]) + add_title(@matrice[col][lig][1]) %>><%= @matrice[col][lig][0] %></td><% end %>
     </tr><% end %>
   </tbody>
   <tfoot>
@@ -15,3 +16,38 @@
     </tr>
   </tfoot>
 </table>
+
+<script>
+var table = document.getElementById("cal")
+  , cols = table.getElementsByTagName("col")
+  , currentColumn = 0;
+
+var columnHover = function (event)
+{
+  var cell = event.target;
+  if ((cell.tagName.toLowerCase() === "td") && (cell.cellIndex > 0))
+  {
+    // On est sur une cellule de la table correspondant à 1 des 12 mois
+    if (currentColumn !== cell.cellIndex)
+    {
+      // On a changé de colonne depuis la fois précédente =>
+      // - supprime l'effet "hover" en cours
+      cols[currentColumn].classList.remove("hover");
+      // - ajoute l'effet "hover" à la colonne en cours
+      currentColumn = cell.cellIndex;
+      cols[currentColumn].classList.add("hover");
+    }
+  }
+  else if (currentColumn > 0)
+  {
+    // Soit on a quitté la table,
+    // Soit on est sur la 1° colonne contenant les noms de jour
+    // => supprime l'effet "hover" en cours
+    cols[currentColumn].classList.remove("hover");
+    currentColumn = 0;
+  }
+};
+
+table.addEventListener("mouseover", columnHover, false);
+table.addEventListener("mouseleave", columnHover, false);
+</script>

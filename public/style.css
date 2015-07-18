@@ -512,9 +512,9 @@ kbd
 }
 #cal tbody tr:hover td
 {
-    background-color: #eee;
-    color: black;
-    font-size: 105%;
+  background-color: #eee;
+  color: black;
+  font-size: 105%;
 }
 #cal tbody tr td.JFerie
 {
@@ -538,9 +538,13 @@ kbd
 
 @media screen
 {
-  #cal td.LeMois
+  #cal .LeMois
   {
     background-color: #f8f8f8;
+  }
+  #cal .hover
+  {
+    background-color: #eee;
   }
   #cal tbody tr td.LeJour
   {
