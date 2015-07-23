@@ -523,7 +523,7 @@ post "/notes" do
     status 201
     session[:current_tag] = "*" unless @note.tags.include? session[:current_tag]
     redirect "/notes/tags/#{session[:current_tag]}" unless session[:current_tag] == "*"
-    redirect "/notes"
+    redirect "/notes/#{@note.id}"
   else
     status 400
     erb :"notes/new"
