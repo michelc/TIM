@@ -178,8 +178,7 @@ class SmallMarkdown
 
   def md_text(text)
     text = text.gsub(/(https?:\/\/[^ ]+)/, '<a href="\1">\1</a>')
-    text = text.sub(/`/, '<kbd>')
-    text = text.sub(/`/, '</kbd>')
+    text = text.gsub(/`(.*?)`/, '<kbd>\1</kbd>')
     text = text.gsub(/=>/, "<strong>⇒</strong>") #"
     text
   end
