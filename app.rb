@@ -2,7 +2,7 @@
 
 require "sinatra"
 require "sequel"
-require "erb"
+require "tilt/erb"
 require "logger"
 require_relative "lib/date_fr"
 require_relative "lib/extend_string"
