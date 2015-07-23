@@ -738,6 +738,7 @@ def check_note(note)
   note.content.strip!
   note.content.gsub!(/\\\\\\/, "```")
   note.content.gsub!(/\/\/\//, "```")
+  note.content.gsub!(/@@/, "`")
   note.tags = text_to_tags(note.tags)
   note.create_at = DateTime.now
   note
