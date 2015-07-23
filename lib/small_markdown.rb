@@ -118,7 +118,7 @@ class SmallMarkdown
       end_p
       end_li
       end_ul
-      @buffer << "\n<h3>#{line.chomp.slice(2..-1)}</h3>\n"
+      @buffer << "\n<h3>#{md_text(line.chomp.slice(2..-1))}</h3>\n"
       line = nil
     end
     line
@@ -131,7 +131,7 @@ class SmallMarkdown
       end_p
       end_li
       end_ul
-      @buffer << "\n<h4>#{line.chomp.slice(3..-1)}</h4>\n"
+      @buffer << "\n<h4>#{md_text(line.chomp.slice(3..-1))}</h4>\n"
       line = nil
     end
     line
