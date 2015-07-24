@@ -1,7 +1,10 @@
-<h2>
-  <%= @note.title %>
+<h2><%= @note.title %></h2>
+
+<p class="infos links">
+  <span class="not_important"><%= @note.create_at.strftime("%d/%m/%Y %H:%M") %></span>
+  <%= bookmark_tags(@note.tags, "") %>
   <a class="over" href="/notes/edit/<%= @note.id %>">edit</a>
-</h2>
+</p>
 
 <div class="note">
 <%= @html %>

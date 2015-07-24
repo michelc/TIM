@@ -475,6 +475,12 @@ h3:hover a.over
   font-size: 1.15em;
 }
 
+.infos
+{
+  border-top: 1px solid #ddd;
+  margin: -20px 0 20px 0;
+}
+
 .note ol li
 {
   margin-bottom: 20px;
