@@ -69,7 +69,7 @@ html
 
 body
 {
-  background-color: #3E6AB5;
+  background-color: #3e6aB5;
   font-size: .85em;
   font-family: 'Century Gothic', Verdana, Helvetica, Sans-Serif;
   margin: 0;
@@ -78,16 +78,16 @@ body
 
 #page
 {
-  background-color: #fff;
+  background-color: white;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 30px 40px 0 40px;
   position: relative;
   width: 880px;
 }
 
 #main
 {
-  background-color: #fff;
+  background-color: white;
   width: 100%;
 }
 
@@ -107,12 +107,6 @@ body
 body
 {
   line-height: 1.4;
-}
-
-#sidebar
-{
-  font-size: 99%;
-  color: #5f420c;
 }
 
 p
@@ -142,17 +136,15 @@ ul ul, ol ul
 
 h2
 {
-  background-color: #fff;
-  color: Chocolate;
+  color: #5f420c; /* chocolat */
   font-family: 'Century Gothic', Arial, Helvetica, sans-serif;
-  font-size: 1.6em;
+  font-size: 1.7em;
   margin: 20px 0;
   padding: 0;
 }
 
 h3
 {
-  background-color: transparent;
   color: #999;
   font-family: 'Century Gothic', Arial, Helvetica, sans-serif;
   font-size: 1.3em;
@@ -168,7 +160,7 @@ h4
 
 a
 {
-  color: #00d;
+  color: #3e6aB5;
   text-decoration: none;
 }
 
@@ -179,7 +171,7 @@ a:hover
 
 a:visited
 {
-  color: #909;
+  color: #d0d;
 }
 
 
@@ -190,12 +182,11 @@ a:visited
 
 ul#nav
 {
-  background-color: #ccc;
+  background-color: #ddd;
   display: block;
   list-style: none;
   margin: 0;
   padding: 0;
-  border-top: 30px solid white;
 }
 
 ul#nav li
@@ -205,14 +196,30 @@ ul#nav li
 
 ul#nav li a
 {
-  color: #fff;
+  color: white;
   display: inline-block;
   padding: 7px 15px;
 }
 
 ul#nav li a:hover
 {
-  background-color: #39B449;
+  color: #3e6aB5;
+}
+
+ul#nav li strong a
+{
+  background-color: #0d0;
+  border-radius: 12px;
+  margin-left: -10px;
+  margin-right: 10px;
+  padding: 3px 8px;
+}
+
+ul#nav li strong a:hover
+{
+  background-color: #0b0;
+  color: white;
+  text-decoration: none;
 }
 
 
@@ -222,7 +229,7 @@ ul#nav li a:hover
 
 form fieldset
 {
-  padding: 20px;
+  padding: 20px 10px;
 }
 
 form fieldset p label
@@ -232,7 +239,15 @@ form fieldset p label
 
 form fieldset p:hover
 {
-  background-color: #f4f4f4;
+  background-color: #f6f6f6;
+}
+
+input,
+select,
+textarea
+{
+  font-family: "Microsoft Sans Serif", Arial, Helvetica, sans-serif;
+  font-size: 115%;
 }
 
 input[type="date"],
@@ -242,13 +257,10 @@ input[type="password"],
 select,
 textarea
 {
-  background-color: #fff;
-  border: solid 2px #f4f4f4;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 110%;
-  margin-right: 20px;
+  background-color: white;
+  border: solid 2px #f6f6f6;
   padding: 2px 4px;
-  width: 510px;
+  width: 550px;
 }
 
 form p label:first-child
@@ -270,7 +282,7 @@ input[type="number"]
 
 input.short
 {
-  width: 100px;
+  width: 128px;
   margin-right: 0;
 }
 
@@ -289,7 +301,7 @@ textarea.wide
 {
   font-family: Consolas, "Lucida Console", "Courier New", monospace;
   height: 70ex;
-  width: 690px;
+  width: 720px;
 }
 
 select
@@ -306,8 +318,9 @@ textarea:focus
 {
   outline-style: solid;
   outline-width: 2px;
-  outline-color: #ebb95b;
-  background-color: #fff8d5;
+  outline-color: #ddd;
+  background-color: #ffc;
+  border-color: #ffc;
 }
 
 .submit
@@ -319,9 +332,9 @@ textarea:focus
 input[type="button"],
 input[type="submit"]
 {
-  background-color: #39B449 !important;
+  background-color: #0d0 !important;
   border-style: none !important;
-  color: #fff !important;
+  color: white !important;
   cursor: pointer;
   margin: 0 20px 0 0 !important;
   padding: 4px 10px !important;
@@ -334,9 +347,9 @@ input[type="submit"].focus,
 input[type="submit"]:focus,
 input[type="submit"]:hover
 {
-  background-color: #abbf3d !important;
+  background-color: #0b0 !important;
   border-style: none !important;
-  color: #fff !important;
+  color: white !important;
   margin: 0 20px 0 0 !important;
   outline-width: 0 !important;
   padding: 4px 10px !important;
@@ -356,19 +369,20 @@ input[type="submit"]:disabled
 table
 {
   border: solid 1px #ddd;
+  border-collapse: true;
   width: 100%;
 }
 
 thead,
 tfoot
 {
-  background-color: #f0f0f0;
+  background-color: #ddd;
   color: #666;
 }
 
 tr
 {
-  border: solid 1px #eee;
+  border: solid 1px #ddd;
 }
 
 td,
@@ -379,7 +393,7 @@ th
 
 tbody tr:hover
 {
-  background-color: #fafafa;
+  background-color: #ffc;
 }
 
 a.over
@@ -395,8 +409,8 @@ p:hover a.over,
 h2:hover a.over,
 h3:hover a.over
 {
-  background-color: #ccc;
-  color: #fff;
+  background-color: #ddd;
+  color: white;
   text-decoration: none;
   visibility: visible;
 }
@@ -421,10 +435,10 @@ h3:hover a.over
 
 .tags
 {
-  background-color: #f4f4f4;
-  border-bottom: 1px solid #ddd;
-  border-top: 1px solid #ddd;
-  font-size: 110%;
+  background-color: #f6f6f6;
+  border-bottom: 2px solid #ddd;
+  border-top: 2px solid #ddd;
+  font-size: 100%;
   margin-bottom: 1em;
   padding: 1em 0;
   text-align: center;
@@ -432,16 +446,16 @@ h3:hover a.over
 
 .tags a
 {
-  color: #00d !important;
+  color: #3e6aB5 !important;
   display: inline-block;
   margin: 0 0.25rem;
 }
 
 .links a.tag
 {
-  background-color: #f4f4f4;
+  background-color: #f6f6f6;
   border-radius: 2px;
-  color: #777;
+  color: #666;
   margin-left: 10px;
   padding: 0 2px;
 }
@@ -468,7 +482,7 @@ h3:hover a.over
 
 pre
 {
-  background-color: #f4f4f4;
+  background-color: #f6f6f6;
   border: 5px solid #ddd;
   font-family: Consolas, "Lucida Console", "Courier New", monospace;
   font-size: 0.95em;
@@ -479,7 +493,7 @@ pre
 
 kbd
 {
-  background-color: #f4f4f4;
+  background-color: #f6f6f6;
   color: black;
   font-family: Consolas, "Lucida Console", "Courier New", monospace;
   padding: 2px 5px;
@@ -512,13 +526,13 @@ kbd
 }
 #cal tbody tr:hover td
 {
-  background-color: #eee;
+  background-color: #ffc;
   color: black;
   font-size: 105%;
 }
 #cal tbody tr td.JFerie
 {
-  background-color: #6f6;
+  background-color: #0d0;
   color: white;
 }
 #cal thead tr,
@@ -540,15 +554,15 @@ kbd
 {
   #cal .LeMois
   {
-    background-color: #f8f8f8;
+    background-color: #f6f6f6;
   }
   #cal .hover
   {
-    background-color: #eee;
+    background-color: #ffc;
   }
   #cal tbody tr td.LeJour
   {
-    background-color: #66f;
+    background-color: #3e6aB5;
     color: white;
   }
 }
@@ -563,7 +577,7 @@ kbd
   /* White page */
   body
   {
-    background-color: #fff;
+    background-color: white;
     padding: 0;
   }
   #page

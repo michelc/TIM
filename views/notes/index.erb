@@ -7,12 +7,6 @@
 <h3>Tags // <%= session[:current_tag] %></h3>
 
 <ul class="links">
-  <li>
-    <p>
-      <a href="/notes/new">Nouvelle</a>
-      <a class="over" href="/notes/new">new</a>
-    </p>
-  </li>
 <% @notes.each do |note| %>
   <li>
     <p>
