@@ -70,8 +70,8 @@ html
 body
 {
   background-color: #3e6aB5;
-  font-size: .85em;
-  font-family: 'Century Gothic', Verdana, Helvetica, Sans-Serif;
+  font-size: 1em;
+  font-family: "Century Gothic", Verdana, Helvetica, Sans-Serif;
   margin: 0;
   padding: 20px 0;
 }
@@ -137,7 +137,7 @@ ul ul, ol ul
 h2
 {
   color: #5f420c; /* chocolat */
-  font-family: 'Century Gothic', Arial, Helvetica, sans-serif;
+  font-family: "Century Gothic", Arial, Helvetica, sans-serif;
   font-size: 1.7em;
   margin: 20px 0;
   padding: 0;
@@ -146,7 +146,7 @@ h2
 h3
 {
   color: #999;
-  font-family: 'Century Gothic', Arial, Helvetica, sans-serif;
+  font-family: "Century Gothic", Arial, Helvetica, sans-serif;
   font-size: 1.3em;
   margin: 20px 0 5px 0;
   padding: 0;
@@ -209,10 +209,10 @@ ul#nav li a:hover
 ul#nav li strong a
 {
   background-color: #0d0;
-  border-radius: 12px;
+  border-radius: 14px;
   margin-left: -10px;
   margin-right: 10px;
-  padding: 3px 8px;
+  padding: 3px 9px;
 }
 
 ul#nav li strong a:hover
@@ -246,8 +246,8 @@ input,
 select,
 textarea
 {
-  font-family: "Microsoft Sans Serif", Arial, Helvetica, sans-serif;
-  font-size: 115%;
+  font-family: "Century Gothic", Verdana, Helvetica, Sans-Serif;
+  font-size: 100%;
 }
 
 input[type="date"],
@@ -438,7 +438,7 @@ h3:hover a.over
   background-color: #f6f6f6;
   border-bottom: 2px solid #ddd;
   border-top: 2px solid #ddd;
-  font-size: 100%;
+  font-size: 0.85em;
   margin-bottom: 1em;
   padding: 1em 0;
   text-align: center;
@@ -513,7 +513,7 @@ kbd
 #cal
 {
   color: #666;
-  font-size: 135%;
+  font-size: 110%;
   margin-top: 20px;
   table-display: fixed;
 }
@@ -594,6 +594,6 @@ kbd
   }
   ul#nav, #footer { display: none; }
   /* Calendar */
-  #cal { font-size: 120%; }
+  #cal { font-size: 105%; margin-top: 0;}
   #cal td { padding: 0.5px 0; }
 }
