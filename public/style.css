@@ -164,7 +164,8 @@ a
   text-decoration: none;
 }
 
-a:hover
+a:hover,
+a:focus
 {
   text-decoration: underline;
 }
@@ -173,7 +174,6 @@ a:visited
 {
   color: #d0d;
 }
-
 
 
 /* --------------------------------------------------
@@ -224,12 +224,17 @@ ul#nav li strong a:hover
 
 
 /* --------------------------------------------------
-*  Formulaire : Présentation
+*  Formulaire : PrÃ©sentation
 -------------------------------------------------- */
 
 form fieldset
 {
   padding: 20px 10px;
+}
+
+form fieldset a:visited
+{
+  color: #3e6aB5;
 }
 
 form fieldset p label
@@ -534,7 +539,6 @@ kbd
 {
   background-color: #ffc;
   color: black;
-  font-size: 105%;
 }
 #cal tbody tr td.JFerie
 {
