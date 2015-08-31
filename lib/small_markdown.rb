@@ -180,6 +180,9 @@ class SmallMarkdown
     text = text.gsub(/(https?:\/\/[^ ]+)/, '<a href="\1">\1</a>')
     text = text.gsub(/`(.*?)`/, '<kbd>\1</kbd>')
     text = text.gsub(/=>/, "<strong>⇒</strong>") #"
+    text = text.gsub(/(\*\*) ((.|\n)*?) (\*\*)/x, '<strong>\2</strong>')
+    text = text.gsub(/(\*) ((.|\n)*?) (\*)/x, '<em>\2</em>')
+    text = text.gsub(/(~~) ((.|\n)*?) (~~)/x, '<del>\2</del>')
     text
   end
 
