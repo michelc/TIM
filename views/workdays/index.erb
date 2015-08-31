@@ -3,18 +3,20 @@
 <% end %>
 
 <% @workdays.each do |workday| %>
+<div class="workday">
   <h3>
     <%= day_title(workday) %>
-    <a class="over" href="/workdays/edit/<%= workday.id %>">edit</a>
   </h3>
   <p>
     <%= workday.am_start %> / <%= workday.am_end %>
     et
     <%= workday.pm_start %> / <%= workday.pm_end %>
+    <a class="over" href="/workdays/edit/<%= workday.id %>">edit</a>
   </p>
   <ul>
     <% workday.detail.to_s.split("\n").each do |line| %>
       <li><%= line %></li>
     <% end %>
   </ul>
+</div>
 <% end %>

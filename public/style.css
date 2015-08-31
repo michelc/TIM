@@ -69,7 +69,7 @@ html
 
 body
 {
-  background-color: #3e6aB5;
+  background-color: #3e6ab5;
   font-size: 1em;
   font-family: "Century Gothic", Verdana, Helvetica, Sans-Serif;
   margin: 0;
@@ -160,7 +160,7 @@ h4
 
 a
 {
-  color: #3e6aB5;
+  color: #00f;
   text-decoration: none;
 }
 
@@ -203,7 +203,7 @@ ul#nav li a
 
 ul#nav li a:hover
 {
-  color: #3e6aB5;
+  color: #00f;
 }
 
 ul#nav li strong a
@@ -234,7 +234,7 @@ form fieldset
 
 form fieldset a:visited
 {
-  color: #3e6aB5;
+  color: #00f;
 }
 
 form fieldset p label
@@ -403,20 +403,18 @@ tbody tr:hover
 
 a.over
 {
-  border-radius: 2px;
-  font-size: small;
+  background-color: #00f;
+  border-radius: 3px;
+  color: white;
   margin-left: 10px;
-  padding: 0 3px;
+  padding: 0 5px;
+  text-decoration: none;
   visibility: hidden;
 }
 
 p:hover a.over,
-h2:hover a.over,
-h3:hover a.over
+.workday:hover a.over
 {
-  background-color: #ddd;
-  color: white;
-  text-decoration: none;
   visibility: visible;
 }
 
@@ -451,7 +449,7 @@ h3:hover a.over
 
 .tags a
 {
-  color: #3e6aB5 !important;
+  color: #00f !important;
   display: inline-block;
   margin: 0 0.25rem;
 }
@@ -572,7 +570,7 @@ kbd
   }
   #cal tbody tr td.LeJour
   {
-    background-color: #3e6aB5;
+    background-color: #00f;
     color: white;
   }
 }
