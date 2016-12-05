@@ -476,7 +476,11 @@ get "/bookmarks/tags/:tag" do
   session[:current_tag] = params[:tag]
   tag = params[:tag]
   tag = "%#{tag}%"
-  @bookmarks = Bookmark.where(Sequel.like(:tags, tag)).reverse_order(:id).all
+  if params[:tag] == "newsletter"
+    @bookmarks = Bookmark.where(Sequel.like(:tags, tag)).order(:title).all
+  else
+    @bookmarks = Bookmark.where(Sequel.like(:tags, tag)).reverse_order(:id).all
+  end
   @bookmark = Bookmark.new
   @tags = get_tags(Bookmark.select(:tags))
   erb :"bookmarks/index"
