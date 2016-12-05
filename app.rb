@@ -728,6 +728,10 @@ end
 
 def check_bookmark(bookmark)
   bookmark.url.strip!
+  index = bookmark.url.index("?utm_") || bookmark.url.index("&utm_")
+  if index
+    bookmark.url = bookmark.url.slice(0, index)
+  end
   bookmark.title.strip!
   bookmark.description.strip!
   bookmark.tags = text_to_tags(bookmark.tags)
